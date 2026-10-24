@@ -4,6 +4,7 @@ mod app;
 mod attack;
 mod bypass;
 mod health;
+mod js;
 mod net;
 mod stats;
 mod target;
@@ -125,6 +126,10 @@ async fn selftest(args: &[String]) -> io::Result<()> {
 
     let recon = bypass::run(&t.ips, t.port.unwrap_or(80), t.tls, &t.host).await;
     println!("recon: {}", bypass::summary(&recon));
+    println!("  js ran: {}", recon.js_ran);
+    for e in &recon.js_errors {
+        println!("  js error: {e}");
+    }
     for n in &recon.notes {
         println!("  note: {n}");
     }
@@ -158,6 +163,7 @@ async fn selftest(args: &[String]) -> io::Result<()> {
             .map(|s| Arc::new(attack::Budget::new(attack::raw_rate(s.vector))))
             .collect(),
     });
+    attack::spawn_refill(ctx.budgets.clone(), stats.clone());
     attack::launch(ctx, plan);
     for i in 1..=secs {
         tokio::time::sleep(Duration::from_secs(1)).await;

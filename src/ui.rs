@@ -125,7 +125,11 @@ pub fn draw(f: &mut Frame, app: &App) {
     if let Some(t) = p.target {
         draw_target(f, t, app, p.compact);
     }
-    draw_vectors(f, p.vectors, app);
+    if app.phase == Phase::Subdomains {
+        draw_subs(f, p.vectors, app);
+    } else {
+        draw_vectors(f, p.vectors, app);
+    }
     draw_stats(f, p.stats, app);
     if let Some(l) = p.log {
         draw_log(f, l, app);
@@ -140,6 +144,7 @@ fn state_of(app: &App) -> (&'static str, Color) {
         Phase::Ready => ("ARMED", ACCENT),
         Phase::Running => ("ATTACKING", BAD),
         Phase::Stopped => ("STOPPED", WARN),
+        Phase::Subdomains => ("SUBDOMAINS", ACCENT),
     }
 }
 
@@ -355,6 +360,15 @@ fn draw_target(f: &mut Frame, area: Rect, app: &App, compact: bool) {
             Span::styled("bypass  ", Style::default().fg(DIM)),
             Span::styled(bypass::summary(r), Style::default().fg(color)),
         ]));
+        if r.js_ran > 0 {
+            lines.push(Line::from(vec![
+                Span::styled("js      ", Style::default().fg(DIM)),
+                Span::styled(
+                    format!("{} script(s) ran, {} error(s)", r.js_ran, r.js_errors.len()),
+                    Style::default().fg(if r.js_errors.is_empty() { OK } else { WARN }),
+                ),
+            ]));
+        }
     }
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
@@ -383,6 +397,53 @@ fn draw_target(f: &mut Frame, area: Rect, app: &App, compact: bool) {
         Paragraph::new(lines).block(block).wrap(Wrap { trim: true }),
         rows[2],
     );
+}
+
+fn draw_subs(f: &mut Frame, area: Rect, app: &App) {
+    let visible = area.height.saturating_sub(2) as usize;
+    let offset = if visible > 0 && app.sub_cursor >= visible {
+        app.sub_cursor + 1 - visible
+    } else {
+        0
+    };
+    let items: Vec<ListItem> = app
+        .subs
+        .iter()
+        .enumerate()
+        .skip(offset)
+        .take(visible.max(1))
+        .map(|(i, s)| {
+            let mark = if s.selected { "[x]" } else { "[ ]" };
+            let style = if s.selected {
+                Style::default().fg(OK).add_modifier(Modifier::BOLD)
+            } else {
+                Style::default().fg(DIM)
+            };
+            let ips = s
+                .ips
+                .iter()
+                .map(|i| i.to_string())
+                .collect::<Vec<_>>()
+                .join(",");
+            let mut item = ListItem::new(Line::from(vec![
+                Span::styled(mark, style),
+                Span::raw(" "),
+                Span::styled(s.name.clone(), Style::default().fg(Color::White)),
+                Span::styled(format!("  {ips}"), Style::default().fg(DIM)),
+            ]));
+            if i == app.sub_cursor {
+                item = item.style(Style::default().bg(Color::Rgb(30, 40, 48)));
+            }
+            item
+        })
+        .collect();
+    let sel = app.subs.iter().filter(|s| s.selected).count();
+    let title = format!(" subdomains  {}/{} selected ", sel, app.subs.len());
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(ACCENT))
+        .title(Span::styled(title, Style::default().fg(ACCENT)));
+    f.render_widget(List::new(items).block(block), area);
 }
 
 fn draw_vectors(f: &mut Frame, area: Rect, app: &App) {
@@ -561,6 +622,7 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
         Phase::Ready => "Space toggle  1-7 layer  m auto  o origin  Enter start",
         Phase::Running => "Enter/x stop  q quit",
         Phase::Stopped => "Enter restart  Esc edit  q quit",
+        Phase::Subdomains => "Space select  a all  Enter confirm  Esc skip",
     };
     f.render_widget(
         Paragraph::new(Line::from(Span::styled(keys, Style::default().fg(DIM)))),

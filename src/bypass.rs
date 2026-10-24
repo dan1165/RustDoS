@@ -15,6 +15,8 @@ use std::net::{IpAddr, Ipv4Addr, ToSocketAddrs};
 use std::time::{Duration, Instant};
 
 use sha2::{Digest, Sha256};
+
+use crate::js;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpStream;
 
@@ -61,12 +63,22 @@ impl Challenge {
     }
 }
 
+pub struct Sub {
+    pub name: String,
+    pub ips: Vec<Ipv4Addr>,
+}
+
 pub struct Recon {
     pub cdn: Option<&'static str>,
     pub challenge: Challenge,
     pub origins: Vec<Ipv4Addr>,
     pub cookie: Option<String>,
     pub notes: Vec<String>,
+    pub subs: Vec<Sub>,
+    pub js_ran: usize,
+    pub js_cookie: Option<String>,
+    pub js_redirect: Option<String>,
+    pub js_errors: Vec<String>,
 }
 
 fn in_cidr(ip: Ipv4Addr, cidr: &str) -> bool {
@@ -179,7 +191,7 @@ async fn request(
                 Ok(0) | Err(_) => break,
                 Ok(n) => {
                     buf.extend_from_slice(&chunk[..n]);
-                    if buf.len() > 96 * 1024 {
+                    if buf.len() > 512 * 1024 {
                         break;
                     }
                 }
@@ -314,8 +326,7 @@ async fn resolve(name: String) -> Vec<Ipv4Addr> {
     .unwrap_or_default()
 }
 
-async fn verify_origin(ip: Ipv4Addr, port: u16, tls: bool, host: &str) -> bool {
-    let Some(r) = request(ip, port, tls, host, "/", None, "GET").await else {
+async fn verify_origin(ip: Ipv4Addr, port: u16, tls: bool, host: &str) -> bool {    let Some(r) = request(ip, port, tls, host, "/", None, "GET").await else {
         return false;
     };
     if !(200..400).contains(&r.status) {
@@ -332,6 +343,11 @@ pub async fn run(ips: &[Ipv4Addr], port: u16, tls: bool, host: &str) -> Recon {
         origins: Vec::new(),
         cookie: None,
         notes: Vec::new(),
+        subs: Vec::new(),
+        js_ran: 0,
+        js_cookie: None,
+        js_redirect: None,
+        js_errors: Vec::new(),
     };
     let Some(&ip) = ips.first() else {
         return recon;
@@ -355,6 +371,74 @@ pub async fn run(ips: &[Ipv4Addr], port: u16, tls: bool, host: &str) -> Recon {
         } else {
             Challenge::None
         };
+
+        // Run the challenge script in the JS engine when there is one.
+        if recon.challenge == Challenge::Cloudflare {
+            let html = r.body.clone();
+            let url = format!("https://{host}/");
+            let h = host.to_string();
+            let handle = tokio::runtime::Handle::current();
+            let (tx, rx) = std::sync::mpsc::channel();
+            let spawned = std::thread::Builder::new()
+                .stack_size(32 * 1024 * 1024)
+                .spawn(move || {
+                    let r = (|| {
+                        let mut s = js::Session::new(&url, &h)?;
+                        for code in js::inline_scripts(&html) {
+                            s.eval(&code);
+                        }
+                        let mut pending = s.take_dyn();
+                        pending.extend(js::script_urls(&html));
+                        let mut rounds = 0;
+                        while !pending.is_empty() && rounds < 3 {
+                            rounds += 1;
+                            for u in pending.drain(..) {
+                                let path = if u.starts_with("http") {
+                                    if !u.contains(&h) {
+                                        continue;
+                                    }
+                                    format!("/{}", u.splitn(4, '/').nth(3).unwrap_or(""))
+                                } else if u.starts_with('/') {
+                                    u
+                                } else {
+                                    format!("/{u}")
+                                };
+                                if let Some(sr) =
+                                    handle.block_on(request(ip, port, tls, &h, &path, None, "GET"))
+                                {
+                                    if sr.status == 200 && !sr.body.is_empty() {
+                                        s.eval(&sr.body);
+                                    }
+                                }
+                            }
+                            pending = s.take_dyn();
+                        }
+                        Some((s.ran, s.errors.clone(), s.cookie(), s.redirect()))
+                    })();
+                    let _ = tx.send(r);
+                });
+            let outcome = if spawned.is_ok() {
+                rx.recv().ok().flatten()
+            } else {
+                None
+            };
+
+            if let Some((ran, errors, cookie, redirect)) = outcome {
+                recon.js_ran = ran;
+                recon.js_errors = errors;
+                if let Some(c) = cookie {
+                    recon.js_cookie = Some(c.clone());
+                    recon.cookie = Some(c);
+                    recon.notes.push("challenge cookie produced by JS".into());
+                }
+                if let Some(rd) = redirect {
+                    recon.js_redirect = Some(rd);
+                }
+                if recon.js_ran == 0 {
+                    recon.notes.push("challenge script did not run".into());
+                }
+            }
+        }
     }
 
     if recon.challenge == Challenge::Anubis {
@@ -366,6 +450,21 @@ pub async fn run(ips: &[Ipv4Addr], port: u16, tls: bool, host: &str) -> Recon {
             None => recon.notes.push("anubis solve failed".into()),
         }
     }
+
+    // Subdomains from certificate transparency, kept only if they still resolve.
+    // crt.sh is unreliable, so fall back to the static candidate list.
+    let mut names = crt_sh(host).await;
+    if names.is_empty() {
+        recon.notes.push("crt.sh unavailable, using static list".into());
+        names = SUBDOMAINS.iter().map(|s| format!("{s}.{host}")).collect();
+    } else {
+        recon.notes.push(format!("crt.sh: {} names", names.len()));
+        names.truncate(200);
+    }
+    recon.subs = verify_subs(names).await;
+    recon
+        .notes
+        .push(format!("{} subdomains still resolve", recon.subs.len()));
 
     if recon.cdn.is_some() {
         let mut set = tokio::task::JoinSet::new();
@@ -429,3 +528,71 @@ pub fn summary(r: &Recon) -> String {
     s
 }
 
+
+// ---------------------------------------------------------------- crt.sh
+
+/// Pull subdomains for `host` out of certificate transparency logs.
+///
+/// crt.sh is frequently slow or 502s, so this is best-effort and bounded.
+pub async fn crt_sh(host: &str) -> Vec<String> {
+    for attempt in 0..3 {
+        if attempt > 0 {
+            tokio::time::sleep(Duration::from_secs(2)).await;
+        }
+        if let Some(v) = crt_sh_once(host).await {
+            return v;
+        }
+    }
+    Vec::new()
+}
+
+async fn crt_sh_once(host: &str) -> Option<Vec<String>> {
+    let ips = resolve("crt.sh".into()).await;
+    let &ip = ips.first()?;
+    let path = format!("/?q=%25.{host}&output=json");
+    let r = request(ip, 443, true, "crt.sh", &path, None, "GET").await?;
+    if r.status != 200 {
+        return None;
+    }
+    let v = serde_json::from_str::<serde_json::Value>(&r.body).ok()?;
+    let mut out: Vec<String> = Vec::new();
+    let suffix = format!(".{host}");
+    for entry in v.as_array().into_iter().flatten() {
+        let Some(nv) = entry.get("name_value").and_then(|n| n.as_str()) else {
+            continue;
+        };
+        for raw in nv.split(['\n', '\r']) {
+            let name = raw.trim().trim_start_matches("*.").to_ascii_lowercase();
+            if name.is_empty() || name == host || name.len() > 253 {
+                continue;
+            }
+            if !name.ends_with(&suffix) && name != host {
+                continue;
+            }
+            if !out.contains(&name) {
+                out.push(name);
+            }
+        }
+    }
+    out.sort();
+    Some(out)
+}
+
+/// Keep only subdomains that still resolve, with their addresses.
+pub async fn verify_subs(names: Vec<String>) -> Vec<Sub> {
+    let mut set = tokio::task::JoinSet::new();
+    for n in names {
+        set.spawn(async move {
+            let ips = resolve(n.clone()).await;
+            (n, ips)
+        });
+    }
+    let mut out = Vec::new();
+    while let Some(Ok((name, ips))) = set.join_next().await {
+        if !ips.is_empty() {
+            out.push(Sub { name, ips });
+        }
+    }
+    out.sort_by(|a, b| a.name.cmp(&b.name));
+    out
+}

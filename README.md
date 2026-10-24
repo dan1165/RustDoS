@@ -46,14 +46,26 @@ After the scan, recon runs automatically:
 - **Challenge detection** — Cloudflare JS challenges and Anubis proof-of-work
   are identified. Anubis is actually solved (SHA-256 PoW) and the resulting
   cookie is reused by the HTTP vectors.
+- **Subdomain discovery** — pulls names from certificate transparency (crt.sh),
+  keeps only those that still resolve, and offers them as extra targets. `Space`
+  selects, `a` selects all, `Enter` confirms. Selected subdomains are attacked
+  alongside the primary target.
 - **Edge evasion** — HTTP vectors send a random query string to defeat caching,
   rotate a browser `User-Agent`, send `Cache-Control: no-cache`, and back off
   when the target answers 429/403/503.
 
-Honest limits: a Cloudflare JavaScript challenge or Turnstile cannot be solved
-without a JS engine, so those are reported rather than defeated. Origin
-discovery only helps when a subdomain leaks the real address; sites that proxy
-everything have no origin to find.
+### JavaScript challenges
+
+A JS engine (Boa) runs the challenge page's scripts against a shimmed DOM, so
+inline scripts and the scripts they load dynamically both execute, and any
+cookie they set is captured and reused.
+
+Honest limits: this is not a browser. Cloudflare's managed challenge runs a
+heavily obfuscated orchestrate script that expects a real DOM, canvas and
+WebGL, and it does not currently complete — so no `cf_clearance` is produced
+against live Cloudflare. The mechanism is proven against a controlled
+challenge page (inline script, dynamic load, cookie capture). Turnstile needs
+a real browser and is only detected.
 
 ## Vectors
 
@@ -102,6 +114,7 @@ greyed out in the list.
 | Armed   | `Up`/`Down` move, `Space` toggle, `1`-`7` toggle layer, `m` auto/manual, `o` retarget origin, `a` arm all, `n` arm none, `Enter` start, `Esc` edit |
 | Running | `Enter` or `x` stop, `q` quit |
 | Stopped | `Enter` restart, `Esc` edit, `q` quit |
+| Subdomains | `Up`/`Down` move, `Space` select, `a` all, `Enter` confirm, `Esc` skip |
 
 ## Layout
 
@@ -177,7 +190,8 @@ src/ui.rs        responsive ratatui rendering
 src/target.rs    parsing, resolution, port scan, fingerprinting
 src/vectors.rs   vector catalogue and auto-plan
 src/attack.rs    worker loops, budgets
-src/bypass.rs    CDN detection, origin discovery, challenge solving
+src/bypass.rs    CDN detection, origin discovery, crt.sh, challenge solving
+src/js.rs        Boa-based challenge script runner
 src/health.rs    target health prober
 src/tls.rs       rustls config (no certificate verification)
 src/net/raw.rs   AF_PACKET socket, checksums, packet builders

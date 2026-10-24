@@ -126,7 +126,6 @@ fn workers(v: Vector) -> usize {
 }
 
 pub fn launch(ctx: Arc<Ctx>, vectors: Vec<Vector>) {
-    spawn_refill(ctx.budgets.clone(), ctx.stats.clone());
     for v in vectors {
         let idx = v.index();
         let n = workers(v);

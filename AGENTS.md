@@ -55,10 +55,13 @@ Then wire it up in `src/attack.rs`: `workers()`, `raw_rate()`, and either `raw_w
 - **`bypass.rs` runs recon after every scan** (CDN detect, origin discovery, challenge solve). It costs a few seconds and several DNS lookups; it is not on the attack path.
 - **The Cloudflare CIDR list is hardcoded** from `cloudflare.com/ips-v4`. It goes stale; refresh it if detection starts missing.
 - **The Anubis solver is a real SHA-256 PoW loop** capped at 5M nonces. Verify it with the mock server recipe in the commit message rather than a live site, which may rate-limit.
-- **No JS engine**, so Cloudflare JS challenges and Turnstile are detected but not solved. Don't claim otherwise in docs.
+- **The JS engine needs its own big-stack thread.** Boa overflows tokio's 2 MB worker stacks on real challenge scripts. `bypass.rs` spawns a 32 MB thread and uses `Handle::block_on` for fetches. `boa_engine::Context` is not `Send`, so all JS work must stay inside that one thread.
+- **Cloudflare's managed challenge does not complete.** The orchestrate script is obfuscated and wants a real DOM. Don't claim `cf_clearance` works. Verify the mechanism with the mock challenge (inline script → dynamic load → cookie capture), not a live site.
+- **crt.sh is unreliable** (frequent 502). `crt_sh` retries 3× then `run()` falls back to the static `SUBDOMAINS` list. Keep the fallback.
+- **Subdomains are verified before being offered.** Only names that still resolve reach the selection list; don't drop that step.
 
 ## Layout
 
-`main.rs` entry + TUI loop + headless mode · `app.rs` state machine, deadline, auto/manual · `ui.rs` responsive ratatui · `target.rs` parse/resolve/scan/fingerprint · `vectors.rs` catalogue + auto-plan · `attack.rs` workers/budgets · `bypass.rs` CDN/origin/challenge · `health.rs` prober · `tls.rs` rustls config · `net/raw.rs` AF_PACKET, checksums, packet builders · `stats.rs` counters.
+`main.rs` entry + TUI loop + headless mode · `app.rs` state machine, deadline, auto/manual · `ui.rs` responsive ratatui · `target.rs` parse/resolve/scan/fingerprint · `vectors.rs` catalogue + auto-plan · `attack.rs` workers/budgets · `bypass.rs` CDN/origin/crt.sh/challenge · `health.rs` prober · `js.rs` Boa runner · `tls.rs` rustls config · `net/raw.rs` AF_PACKET, checksums, packet builders · `stats.rs` counters.
 
 Platform is Alpine/musl/aarch64; `gcc` and `musl-dev` are required for linking.
