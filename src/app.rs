@@ -1,6 +1,7 @@
 //! Application state and input handling.
 
 use std::collections::VecDeque;
+use std::sync::atomic::AtomicU32;
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -29,11 +30,13 @@ pub struct ScanOutcome {
 pub struct App {
     pub target_input: String,
     pub port_input: String,
+    pub minutes_input: String,
     pub focus: usize,
     pub phase: Phase,
     pub target: Option<Target>,
     pub selected: [bool; ALL.len()],
     pub cursor: usize,
+    pub auto_mode: bool,
     pub stats: Option<Arc<Stats>>,
     pub log: Vec<String>,
     pub message: String,
@@ -42,9 +45,15 @@ pub struct App {
     pub quit: bool,
     pub pps: f64,
     pub bps: f64,
+    pub open_ports: Vec<u16>,
+    pub scan_seen: u32,
+    pub scan_total: u32,
+    pub started_at: Option<Instant>,
+    pub deadline: Option<Instant>,
+    pub limit_secs: u64,
     samples: VecDeque<(Instant, u64, u64)>,
     scan_rx: Option<mpsc::Receiver<ScanOutcome>>,
-    pub started_at: Option<Instant>,
+    port_rx: Option<mpsc::UnboundedReceiver<u16>>,
 }
 
 impl App {
@@ -72,11 +81,13 @@ impl App {
         Self {
             target_input: String::new(),
             port_input: String::new(),
+            minutes_input: String::new(),
             focus: 0,
             phase: Phase::Input,
             target: None,
             selected: [false; ALL.len()],
             cursor: 0,
+            auto_mode: true,
             stats: None,
             log,
             message: "enter a target, then press Enter to scan".into(),
@@ -85,9 +96,15 @@ impl App {
             quit: false,
             pps: 0.0,
             bps: 0.0,
+            open_ports: Vec::new(),
+            scan_seen: 0,
+            scan_total: 0,
+            started_at: None,
+            deadline: None,
+            limit_secs: 0,
             samples: VecDeque::new(),
             scan_rx: None,
-            started_at: None,
+            port_rx: None,
         }
     }
 
@@ -113,6 +130,35 @@ impl App {
             return;
         }
         self.selected[i] = !self.selected[i];
+        self.auto_mode = false;
+    }
+
+    fn toggle_layer(&mut self, layer: &str) {
+        let idx: Vec<usize> = ALL
+            .iter()
+            .enumerate()
+            .filter(|(_, s)| s.layer == layer && (!s.raw || self.raw_ok))
+            .map(|(i, _)| i)
+            .collect();
+        if idx.is_empty() {
+            self.message = format!("{layer} unavailable");
+            return;
+        }
+        let any_off = idx.iter().any(|i| !self.selected[*i]);
+        for i in idx {
+            self.selected[i] = any_off;
+        }
+        self.auto_mode = false;
+        self.message = format!("{layer} {}", if any_off { "armed" } else { "cleared" });
+    }
+
+    fn apply_plan(&mut self) {
+        let Some(t) = &self.target else { return };
+        let plan = vectors::plan_for(t.service, t.port, self.raw_ok);
+        self.selected = [false; ALL.len()];
+        for v in &plan {
+            self.selected[v.index()] = true;
+        }
     }
 
     pub fn start_scan(&mut self) {
@@ -125,14 +171,49 @@ impl App {
                 return;
             }
         };
+        let minutes = self.minutes_input.trim().to_string();
+        self.limit_secs = if minutes.is_empty() {
+            0
+        } else {
+            match minutes.parse::<u64>() {
+                Ok(m) => m.saturating_mul(60),
+                Err(_) => {
+                    self.message = "minutes must be a number (0 = unlimited)".into();
+                    return;
+                }
+            }
+        };
+
         self.phase = Phase::Scanning;
-        self.message = "resolving and fingerprinting target...".into();
+        self.open_ports.clear();
+        self.scan_seen = 0;
+        self.scan_total = 0;
+        self.message = "resolving target...".into();
+
         let (tx, rx) = mpsc::channel(1);
+        let (ptx, prx) = mpsc::unbounded_channel();
         self.scan_rx = Some(rx);
+        self.port_rx = Some(prx);
+
         tokio::spawn(async move {
             let res = async {
                 t.resolve()?;
-                target::fingerprint(&mut t)?;
+                let ip = t.primary().ok_or("target has no address")?;
+                if t.port.is_none() {
+                    let progress = Arc::new(AtomicU32::new(0));
+                    let ports = target::scan_all_ports(ip, ptx, progress).await;
+                    let (svc, chosen) = target::best_service(&ports);
+                    t.service = svc;
+                    t.port = chosen;
+                    if svc == target::Service::Https {
+                        t.tls = true;
+                    }
+                    if chosen.is_some() {
+                        let _ = target::fingerprint(&mut t);
+                    }
+                } else {
+                    target::fingerprint(&mut t)?;
+                }
                 Ok::<Target, String>(t)
             }
             .await;
@@ -141,6 +222,13 @@ impl App {
     }
 
     pub fn poll_scan(&mut self) {
+        if let Some(rx) = self.port_rx.as_mut() {
+            while let Ok(p) = rx.try_recv() {
+                self.open_ports.push(p);
+                self.open_ports.sort_unstable();
+                self.scan_seen += 1;
+            }
+        }
         let Some(rx) = self.scan_rx.as_mut() else {
             return;
         };
@@ -148,6 +236,7 @@ impl App {
             return;
         };
         self.scan_rx = None;
+        self.port_rx = None;
         match out.target {
             Ok(t) => {
                 let ips = t
@@ -156,23 +245,35 @@ impl App {
                     .map(|i| i.to_string())
                     .collect::<Vec<_>>()
                     .join(", ");
+                let ports = if self.open_ports.is_empty() {
+                    "-".to_string()
+                } else {
+                    self.open_ports
+                        .iter()
+                        .map(|p| p.to_string())
+                        .collect::<Vec<_>>()
+                        .join(",")
+                };
                 self.note(format!(
-                    "target {} -> {} | service: {} | port {}",
+                    "target {} -> {} | service: {} | port {} | open: {}",
                     t.input,
                     ips,
                     t.service.label(),
-                    t.port.map(|p| p.to_string()).unwrap_or_else(|| "-".into())
+                    t.port.map(|p| p.to_string()).unwrap_or_else(|| "-".into()),
+                    ports
                 ));
-                let plan = vectors::plan_for(t.service, t.port, self.raw_ok);
-                self.selected = [false; ALL.len()];
-                for v in &plan {
-                    self.selected[v.index()] = true;
-                }
-                self.message = format!(
-                    "{} vectors auto-selected - Enter to start, Space to toggle",
-                    plan.len()
-                );
                 self.target = Some(t);
+                if self.auto_mode {
+                    self.apply_plan();
+                } else if self.selected_vectors().is_empty() {
+                    self.apply_plan();
+                }
+                let n = self.selected_vectors().len();
+                self.message = format!(
+                    "{} vectors armed ({}) - Enter to start",
+                    n,
+                    if self.auto_mode { "auto" } else { "manual" }
+                );
                 self.phase = Phase::Ready;
             }
             Err(e) => {
@@ -200,7 +301,10 @@ impl App {
 
         let stats = Arc::new(Stats::new());
         let raw = if self.raw_ok {
-            self.iface.as_ref().and_then(|i| RawSock::open(i).ok()).map(Arc::new)
+            self.iface
+                .as_ref()
+                .and_then(|i| RawSock::open(i).ok())
+                .map(Arc::new)
         } else {
             None
         };
@@ -224,12 +328,22 @@ impl App {
         });
 
         self.note(format!(
-            "attacking {ip}:{port} with {} vectors",
-            vectors.len()
+            "attacking {ip}:{port} with {} vectors{}",
+            vectors.len(),
+            if self.limit_secs > 0 {
+                format!(" for {}m", self.limit_secs / 60)
+            } else {
+                String::new()
+            }
         ));
         attack::launch(ctx, vectors);
         self.stats = Some(stats);
         self.started_at = Some(Instant::now());
+        self.deadline = if self.limit_secs > 0 {
+            Some(Instant::now() + std::time::Duration::from_secs(self.limit_secs))
+        } else {
+            None
+        };
         self.samples.clear();
         self.phase = Phase::Running;
         self.message = "running - Enter/x to stop".into();
@@ -239,12 +353,26 @@ impl App {
         if let Some(s) = &self.stats {
             s.stop();
         }
+        self.deadline = None;
         self.phase = Phase::Stopped;
         self.message = "stopped - Enter to restart, Esc to edit target".into();
         self.note("attack stopped".to_string());
     }
 
+    pub fn remaining(&self) -> Option<u64> {
+        self.deadline
+            .map(|d| d.saturating_duration_since(Instant::now()).as_secs())
+    }
+
     pub fn tick(&mut self) {
+        if self.phase == Phase::Running {
+            if let Some(d) = self.deadline {
+                if Instant::now() >= d {
+                    self.stop_attack();
+                    self.message = "time limit reached".into();
+                }
+            }
+        }
         let Some(s) = &self.stats else { return };
         let now = Instant::now();
         let p = s.total_packets();
@@ -282,25 +410,41 @@ impl App {
             KeyCode::Char(c) => {
                 if self.focus == 0 {
                     self.target_input.push(c);
-                } else if c.is_ascii_digit() && self.port_input.len() < 5 {
-                    self.port_input.push(c);
+                } else if c.is_ascii_digit() {
+                    let field = if self.focus == 1 {
+                        &mut self.port_input
+                    } else {
+                        &mut self.minutes_input
+                    };
+                    if field.len() < 5 {
+                        field.push(c);
+                    }
                 }
             }
-            KeyCode::Backspace => {
-                if self.focus == 0 {
+            KeyCode::Backspace => match self.focus {
+                0 => {
                     self.target_input.pop();
-                } else {
+                }
+                1 => {
                     self.port_input.pop();
                 }
-            }
-            KeyCode::Tab => self.focus = 1 - self.focus,
+                _ => {
+                    self.minutes_input.pop();
+                }
+            },
+            KeyCode::Tab => self.focus = (self.focus + 1) % 3,
+            KeyCode::BackTab => self.focus = (self.focus + 2) % 3,
             KeyCode::Enter => self.start_scan(),
             KeyCode::Esc => {
-                if self.target_input.is_empty() && self.port_input.is_empty() {
+                if self.target_input.is_empty()
+                    && self.port_input.is_empty()
+                    && self.minutes_input.is_empty()
+                {
                     self.quit = true;
                 } else {
                     self.target_input.clear();
                     self.port_input.clear();
+                    self.minutes_input.clear();
                 }
             }
             _ => {}
@@ -324,8 +468,25 @@ impl App {
                         self.selected[i] = true;
                     }
                 }
+                self.auto_mode = false;
             }
-            KeyCode::Char('n') => self.selected = [false; ALL.len()],
+            KeyCode::Char('n') => {
+                self.selected = [false; ALL.len()];
+                self.auto_mode = false;
+            }
+            KeyCode::Char('m') => {
+                self.auto_mode = !self.auto_mode;
+                if self.auto_mode {
+                    self.apply_plan();
+                    self.message = "auto layer selection".into();
+                } else {
+                    self.message = "manual layer selection".into();
+                }
+            }
+            KeyCode::Char(c @ '1'..='7') => {
+                let layer = format!("L{c}");
+                self.toggle_layer(&layer);
+            }
             _ => {}
         }
     }

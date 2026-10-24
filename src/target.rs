@@ -2,7 +2,13 @@
 
 use std::io::Read;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpStream, ToSocketAddrs, UdpSocket};
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
 use std::time::Duration;
+
+use tokio::net::TcpStream as AsyncTcpStream;
+use tokio::sync::mpsc;
+use tokio::task::JoinSet;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Service {
@@ -231,3 +237,96 @@ pub fn fingerprint(t: &mut Target) -> Result<(), String> {
     Ok(())
 }
 
+/// Classify a port without a banner grab.
+pub fn classify_port(port: u16) -> Service {
+    match port {
+        443 | 8443 | 9443 | 4443 => Service::Https,
+        80 | 8080 | 8000 | 8888 | 3000 | 5000 | 9000 => Service::Http,
+        53 => Service::Dns,
+        22 => Service::Ssh,
+        25 | 587 | 465 => Service::Smtp,
+        21 => Service::Ftp,
+        _ => Service::Generic,
+    }
+}
+
+/// Pick the most interesting open port and its service.
+pub fn best_service(ports: &[u16]) -> (Service, Option<u16>) {
+    let rank = |p: u16| match classify_port(p) {
+        Service::Https => 0,
+        Service::Http => 1,
+        Service::Dns => 2,
+        Service::Ssh => 3,
+        Service::Smtp => 4,
+        Service::Ftp => 5,
+        Service::Generic => 6,
+        Service::Unknown => 7,
+    };
+    match ports.iter().min_by_key(|p| rank(**p)) {
+        Some(&p) => (classify_port(p), Some(p)),
+        None => (Service::Unknown, None),
+    }
+}
+
+async fn port_open(ip: Ipv4Addr, port: u16) -> bool {
+    matches!(
+        tokio::time::timeout(
+            Duration::from_millis(400),
+            AsyncTcpStream::connect((ip, port))
+        )
+        .await,
+        Ok(Ok(_))
+    )
+}
+
+const QUICK_PORTS: [u16; 26] = [
+    80, 443, 8080, 8443, 22, 21, 25, 53, 110, 143, 3306, 5432, 6379, 27017, 8000, 8888, 3000, 5000,
+    9000, 9200, 11211, 5900, 3389, 445, 139, 23,
+];
+
+/// Scan every TCP port on `ip`, streaming hits through `found_tx`.
+///
+/// A quick pass over common ports runs first so the UI has something to show
+/// immediately, then the full 1-65535 range is swept.
+pub async fn scan_all_ports(
+    ip: Ipv4Addr,
+    found_tx: mpsc::UnboundedSender<u16>,
+    progress: Arc<AtomicU32>,
+) -> Vec<u16> {
+    let mut found: Vec<u16> = Vec::new();
+
+    let mut set = JoinSet::new();
+    for p in QUICK_PORTS {
+        set.spawn(async move { (p, port_open(ip, p).await) });
+    }
+    while let Some(r) = set.join_next().await {
+        if let Ok((p, true)) = r {
+            found.push(p);
+            let _ = found_tx.send(p);
+        }
+    }
+
+    let mut port: u32 = 1;
+    let mut set = JoinSet::new();
+    loop {
+        while set.len() < 1200 && port <= 65535 {
+            let p = port as u16;
+            port += 1;
+            if found.contains(&p) {
+                progress.fetch_add(1, Ordering::Relaxed);
+                continue;
+            }
+            set.spawn(async move { (p, port_open(ip, p).await) });
+        }
+        if set.is_empty() {
+            break;
+        }
+        if let Some(Ok((p, true))) = set.join_next().await {
+            found.push(p);
+            let _ = found_tx.send(p);
+        }
+        progress.fetch_add(1, Ordering::Relaxed);
+    }
+    found.sort_unstable();
+    found
+}

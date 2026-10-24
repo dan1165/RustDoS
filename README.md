@@ -3,14 +3,29 @@
 A multi-layer (L1-L7) DDoS stress tester with a terminal UI, written in Rust.
 
 You give it one thing — an IP, a domain, or a URL — and an optional port. It
-resolves the target, fingerprints what is actually listening, picks the
-matching attack vectors, and lets you fire.
+resolves the target, scans every port when you do not name one, fingerprints
+what is actually listening, picks the matching attack vectors, and lets you
+fire. An optional time limit stops the run for you.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
 │ RustDoS  L1-L7 stress tester                              [ARMED] │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+## Inputs
+
+| Field | Meaning |
+|-------|---------|
+| target | IP, domain or URL. Required. |
+| port | Optional. Leave empty to scan all 65535 ports and pick the best service. |
+| minutes | Optional. `2` = two minutes, `0` or empty = unlimited. |
+
+## Automatic vs manual
+
+By default the tool picks the layers for you from what the scan found. Press
+`m` to switch to manual, then `Space` to toggle single vectors or `1`-`7` to
+toggle a whole layer. Any manual toggle drops you out of auto mode.
 
 ## Vectors
 
@@ -55,20 +70,29 @@ greyed out in the list.
 
 | Context | Keys |
 |---------|------|
-| Input   | type target, `Tab` switch field, `Enter` scan, `Esc` clear, `Ctrl-C` quit |
-| Armed   | `Up`/`Down` move, `Space` toggle, `a` arm all, `n` arm none, `Enter` start, `Esc` edit |
+| Input   | type target, `Tab`/`Shift-Tab` cycle fields, `Enter` scan, `Esc` clear, `Ctrl-C` quit |
+| Armed   | `Up`/`Down` move, `Space` toggle, `1`-`7` toggle layer, `m` auto/manual, `a` arm all, `n` arm none, `Enter` start, `Esc` edit |
 | Running | `Enter` or `x` stop, `q` quit |
 | Stopped | `Enter` restart, `Esc` edit, `q` quit |
+
+## Layout
+
+The UI adapts to the terminal. Large terminals get two columns and a log
+panel; medium ones stack and drop the log; tiny ones keep only the three input
+fields, the vector list and the rate line. Descriptions and the gauge drop away
+as space shrinks.
 
 ## How the target is handled
 
 1. Input is normalised — `https://example.com/path` becomes `example.com`,
    the scheme sets TLS, and a `:port` suffix is split off.
 2. Domains are resolved to IPv4.
-3. With no port, a short sweep of common ports identifies the service. With a
-   port, that port is probed and the banner classified.
-4. A focused vector set is selected for the detected service. `a` arms
-   everything instead.
+3. With no port, a quick pass over common ports runs first, then the full
+   1-65535 range is swept with 1200 concurrent probes. Open ports stream into
+   the UI as they are found. With a port, only that port is probed and its
+   banner classified.
+4. The most interesting open port decides the service, and a focused vector set
+   is selected for it. `a` arms everything instead.
 
 ## Headless mode
 
@@ -78,10 +102,12 @@ Useful for scripting and for checking a target without the TUI:
 ./rustdos --list
 ./rustdos --test example.com 443 10
 ./rustdos --test 1.1.1.1 80 5 syn-flood http-get
+./rustdos --test 127.0.0.1 "" 5          # empty port = full port scan
 ```
 
-`--test <target> [port] [seconds] [vectors...]` prints per-second counters and
-a per-vector breakdown. If vectors are omitted the auto-plan is used.
+`--test <target> [port] [seconds] [vectors...]` prints open ports, per-second
+counters and a per-vector breakdown. If vectors are omitted the auto-plan is
+used. The headless mode takes seconds, not minutes.
 
 ## Rate control
 

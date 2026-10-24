@@ -89,7 +89,25 @@ async fn selftest(args: &[String]) -> io::Result<()> {
         eprintln!("{e}");
         return Ok(());
     }
-    if let Err(e) = target::fingerprint(&mut t) {
+    let Some(ip) = t.primary() else {
+        eprintln!("target has no address");
+        return Ok(());
+    };
+    if t.port.is_none() {
+        let (tx, _rx) = mpsc::unbounded_channel();
+        let progress = Arc::new(std::sync::atomic::AtomicU32::new(0));
+        let ports = target::scan_all_ports(ip, tx, progress).await;
+        let (svc, chosen) = target::best_service(&ports);
+        t.service = svc;
+        t.port = chosen;
+        if svc == target::Service::Https {
+            t.tls = true;
+        }
+        println!("open ports: {ports:?}");
+        if chosen.is_some() {
+            let _ = target::fingerprint(&mut t);
+        }
+    } else if let Err(e) = target::fingerprint(&mut t) {
         eprintln!("{e}");
         return Ok(());
     }

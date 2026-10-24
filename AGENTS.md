@@ -49,9 +49,12 @@ Then wire it up in `src/attack.rs`: `workers()`, `raw_rate()`, and either `raw_w
 - **Interface discovery prefers the default route** (`raw::discover`). Picking the first up interface selects a Docker bridge and nothing reaches the target.
 - **`tls-flood` skips cert verification on purpose** — it is a handshake flood, not a client. `rustls` is pinned to the `ring` provider because `aws-lc-rs` needs cmake.
 - **HTTP vectors do not read responses.** They connect, write, drop. Adding a read back costs several-fold throughput.
+- **The three input fields stay visible at every terminal size.** `ui::plan` has four tiers; the compact target panel drops its info line before it drops a field. Don't move the fields behind a breakpoint.
+- **Time limits are minutes in the TUI, seconds in `--test`.** `0` or empty means unlimited. The deadline is checked in `App::tick`, not by the workers.
+- **Port scanning is the default when no port is given** and sweeps all 65535 ports at 1200 concurrency. A full scan takes ~20-30s; pass a port to skip it.
 
 ## Layout
 
-`main.rs` entry + TUI loop + headless mode · `app.rs` state machine · `ui.rs` ratatui · `target.rs` parse/resolve/fingerprint · `vectors.rs` catalogue + auto-plan · `attack.rs` workers/budgets/TLS · `net/raw.rs` AF_PACKET, checksums, packet builders · `stats.rs` counters.
+`main.rs` entry + TUI loop + headless mode · `app.rs` state machine, deadline, auto/manual · `ui.rs` responsive ratatui · `target.rs` parse/resolve/scan/fingerprint · `vectors.rs` catalogue + auto-plan · `attack.rs` workers/budgets/TLS · `net/raw.rs` AF_PACKET, checksums, packet builders · `stats.rs` counters.
 
 Platform is Alpine/musl/aarch64; `gcc` and `musl-dev` are required for linking.

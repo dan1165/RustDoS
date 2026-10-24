@@ -1,4 +1,4 @@
-//! Terminal rendering.
+//! Terminal rendering, with layouts for large, medium and tiny terminals.
 
 use ratatui::layout::{Constraint, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
@@ -26,48 +26,154 @@ fn layer_color(layer: &str) -> Color {
     }
 }
 
-pub fn draw(f: &mut Frame, app: &App) {
-    let area = f.area();
-    let rows = Layout::vertical([
-        Constraint::Length(3),
-        Constraint::Min(10),
-        Constraint::Length(4),
-        Constraint::Length(8),
-        Constraint::Length(1),
-    ])
-    .split(area);
-
-    draw_header(f, rows[0], app);
-
-    let cols = Layout::horizontal([Constraint::Percentage(38), Constraint::Percentage(62)])
-        .split(rows[1]);
-    draw_target(f, cols[0], app);
-    draw_vectors(f, cols[1], app);
-
-    draw_stats(f, rows[2], app);
-    draw_log(f, rows[3], app);
-    draw_footer(f, rows[4], app);
+struct Plan {
+    header: Rect,
+    target: Option<Rect>,
+    vectors: Rect,
+    stats: Rect,
+    log: Option<Rect>,
+    footer: Rect,
+    compact: bool,
 }
 
-fn draw_header(f: &mut Frame, area: Rect, app: &App) {
-    let (state, color) = match app.phase {
+fn plan(area: Rect) -> Plan {
+    let (w, h) = (area.width, area.height);
+    // The target fields are the most important thing on screen, so they stay
+    // visible at every size; only the log, gauge and descriptions drop away.
+    if h < 10 || w < 34 {
+        let r = Layout::vertical([
+            Constraint::Length(1),
+            Constraint::Length(3),
+            Constraint::Min(0),
+            Constraint::Length(1),
+            Constraint::Length(1),
+        ])
+        .split(area);
+        Plan {
+            header: r[0],
+            target: Some(r[1]),
+            vectors: r[2],
+            stats: r[3],
+            log: None,
+            footer: r[4],
+            compact: true,
+        }
+    } else if h < 14 || w < 46 {
+        let r = Layout::vertical([
+            Constraint::Length(1),
+            Constraint::Length(3),
+            Constraint::Min(2),
+            Constraint::Length(2),
+            Constraint::Length(1),
+        ])
+        .split(area);
+        Plan {
+            header: r[0],
+            target: Some(r[1]),
+            vectors: r[2],
+            stats: r[3],
+            log: None,
+            footer: r[4],
+            compact: true,
+        }
+    } else if h < 26 || w < 90 {
+        let r = Layout::vertical([
+            Constraint::Length(3),
+            Constraint::Length(5),
+            Constraint::Min(6),
+            Constraint::Length(3),
+            Constraint::Length(1),
+        ])
+        .split(area);
+        Plan {
+            header: r[0],
+            target: Some(r[1]),
+            vectors: r[2],
+            stats: r[3],
+            log: None,
+            footer: r[4],
+            compact: true,
+        }
+    } else {
+        let r = Layout::vertical([
+            Constraint::Length(3),
+            Constraint::Min(10),
+            Constraint::Length(4),
+            Constraint::Length(8),
+            Constraint::Length(1),
+        ])
+        .split(area);
+        let c = Layout::horizontal([Constraint::Percentage(38), Constraint::Percentage(62)])
+            .split(r[1]);
+        Plan {
+            header: r[0],
+            target: Some(c[0]),
+            vectors: c[1],
+            stats: r[2],
+            log: Some(r[3]),
+            footer: r[4],
+            compact: false,
+        }
+    }
+}
+
+pub fn draw(f: &mut Frame, app: &App) {
+    let p = plan(f.area());
+    draw_header(f, p.header, app, p.compact);
+    if let Some(t) = p.target {
+        draw_target(f, t, app, p.compact);
+    }
+    draw_vectors(f, p.vectors, app);
+    draw_stats(f, p.stats, app);
+    if let Some(l) = p.log {
+        draw_log(f, l, app);
+    }
+    draw_footer(f, p.footer, app);
+}
+
+fn state_of(app: &App) -> (&'static str, Color) {
+    match app.phase {
         Phase::Input => ("IDLE", DIM),
         Phase::Scanning => ("SCANNING", WARN),
         Phase::Ready => ("ARMED", ACCENT),
         Phase::Running => ("ATTACKING", BAD),
         Phase::Stopped => ("STOPPED", WARN),
-    };
-    let title = Line::from(vec![
+    }
+}
+
+fn draw_header(f: &mut Frame, area: Rect, app: &App, compact: bool) {
+    let (state, color) = state_of(app);
+    let mut spans = vec![
         Span::styled("Rust", Style::default().fg(ACCENT).add_modifier(Modifier::BOLD)),
-        Span::styled("DoS", Style::default().fg(Color::Rgb(255, 90, 160)).add_modifier(Modifier::BOLD)),
-        Span::styled("  L1-L7 stress tester", Style::default().fg(DIM)),
-        Span::raw("   "),
+        Span::styled(
+            "DoS",
+            Style::default()
+                .fg(Color::Rgb(255, 90, 160))
+                .add_modifier(Modifier::BOLD),
+        ),
+        Span::raw(" "),
         Span::styled(format!("[{state}]"), Style::default().fg(color).add_modifier(Modifier::BOLD)),
-    ]);
+    ];
+    if compact {
+        if let Some(t) = &app.target {
+            spans.push(Span::raw(" "));
+            spans.push(Span::styled(
+                format!("{}:{}", t.host, t.port.map(|p| p.to_string()).unwrap_or_else(|| "-".into())),
+                Style::default().fg(Color::White),
+            ));
+        }
+        f.render_widget(Paragraph::new(Line::from(spans)), area);
+        return;
+    }
+    spans.push(Span::styled("  L1-L7 stress tester", Style::default().fg(DIM)));
+    if app.auto_mode {
+        spans.push(Span::raw("  "));
+        spans.push(Span::styled("AUTO", Style::default().fg(OK).add_modifier(Modifier::BOLD)));
+    }
     let block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(color));
-    f.render_widget(Paragraph::new(title).block(block), area);
+    f.render_widget(Paragraph::new(Line::from(spans)).block(block), area);
 }
 
 fn field(f: &mut Frame, area: Rect, label: &str, value: &str, focused: bool, hint: &str) {
@@ -88,29 +194,109 @@ fn field(f: &mut Frame, area: Rect, label: &str, value: &str, focused: bool, hin
     f.render_widget(Paragraph::new(text).block(block), area);
 }
 
-fn draw_target(f: &mut Frame, area: Rect, app: &App) {
+fn draw_target(f: &mut Frame, area: Rect, app: &App, compact: bool) {
+    let editing = matches!(app.phase, Phase::Input | Phase::Scanning);
+
+    if compact {
+        let show_info = area.height >= 4;
+        let mut cons = vec![
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Length(1),
+        ];
+        if show_info {
+            cons.push(Constraint::Min(1));
+        }
+        let rows = Layout::vertical(cons).split(area);
+        let line = |label: &str, val: &str, focus: bool, hint: &str| {
+            let s = if focus {
+                Style::default().fg(ACCENT).add_modifier(Modifier::BOLD)
+            } else {
+                Style::default().fg(DIM)
+            };
+            let v = if val.is_empty() {
+                Span::styled(hint.to_string(), Style::default().fg(Color::Rgb(80, 88, 96)))
+            } else {
+                Span::styled(val.to_string(), Style::default().fg(Color::White))
+            };
+            Line::from(vec![Span::styled(format!("{label:<7}"), s), v])
+        };
+        f.render_widget(
+            Paragraph::new(line(
+                "target",
+                &app.target_input,
+                editing && app.focus == 0,
+                "ip / domain / url",
+            )),
+            rows[0],
+        );
+        f.render_widget(
+            Paragraph::new(line(
+                "port",
+                &app.port_input,
+                editing && app.focus == 1,
+                "auto (scan all)",
+            )),
+            rows[1],
+        );
+        f.render_widget(
+            Paragraph::new(line(
+                "min",
+                &app.minutes_input,
+                editing && app.focus == 2,
+                "0 = unlimited",
+            )),
+            rows[2],
+        );
+        if show_info {
+            let info = if app.phase == Phase::Scanning {
+                format!(
+                    "scanning {}/65535, {} open",
+                    app.scan_seen,
+                    app.open_ports.len()
+                )
+            } else {
+                format!("{} | {} ports", app.service_label(), app.open_ports.len())
+            };
+            f.render_widget(
+                Paragraph::new(Line::from(Span::styled(info, Style::default().fg(DIM)))),
+                rows[3],
+            );
+        }
+        return;
+    }
+
     let rows = Layout::vertical([
         Constraint::Length(3),
         Constraint::Length(3),
         Constraint::Min(6),
     ])
     .split(area);
-
     field(
         f,
         rows[0],
         "target (ip / domain / url)",
         &app.target_input,
-        app.focus == 0 && matches!(app.phase, Phase::Input | Phase::Scanning),
+        editing && app.focus == 0,
         "example.com",
+    );
+    let pair = Layout::horizontal([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .split(rows[1]);
+    field(
+        f,
+        pair[0],
+        "port (optional)",
+        &app.port_input,
+        editing && app.focus == 1,
+        "auto",
     );
     field(
         f,
-        rows[1],
-        "port (optional)",
-        &app.port_input,
-        app.focus == 1 && matches!(app.phase, Phase::Input | Phase::Scanning),
-        "auto",
+        pair[1],
+        "minutes (0=inf)",
+        &app.minutes_input,
+        editing && app.focus == 2,
+        "0",
     );
 
     let mut lines: Vec<Line> = Vec::new();
@@ -131,24 +317,35 @@ fn draw_target(f: &mut Frame, area: Rect, app: &App) {
             Span::styled(app.service_label(), Style::default().fg(WARN)),
         ]));
         lines.push(Line::from(vec![
-            Span::styled("port    ", Style::default().fg(DIM)),
-            Span::styled(
-                t.port.map(|p| p.to_string()).unwrap_or_else(|| "auto".into()),
-                Style::default().fg(Color::White),
-            ),
-        ]));
-        lines.push(Line::from(vec![
             Span::styled("tls     ", Style::default().fg(DIM)),
             Span::styled(
-                if t.tls { "yes" } else { "no" },
+                if app.is_tls() { "yes" } else { "no" },
                 Style::default().fg(if app.is_tls() { OK } else { DIM }),
             ),
         ]));
+    } else if app.phase == Phase::Scanning {
+        lines.push(Line::from(Span::styled(
+            format!("scanning {}/65535", app.scan_seen),
+            Style::default().fg(WARN),
+        )));
     } else {
         lines.push(Line::from(Span::styled(
             "no target scanned yet",
             Style::default().fg(DIM),
         )));
+    }
+    if !app.open_ports.is_empty() {
+        lines.push(Line::from(vec![
+            Span::styled("open    ", Style::default().fg(DIM)),
+            Span::styled(
+                app.open_ports
+                    .iter()
+                    .map(|p| p.to_string())
+                    .collect::<Vec<_>>()
+                    .join(","),
+                Style::default().fg(OK),
+            ),
+        ]));
     }
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
@@ -181,9 +378,18 @@ fn draw_target(f: &mut Frame, area: Rect, app: &App) {
 
 fn draw_vectors(f: &mut Frame, area: Rect, app: &App) {
     let counts = app.stats.as_ref().map(|s| s.per_vector());
+    let visible = area.height.saturating_sub(2) as usize;
+    let offset = if visible > 0 && app.cursor >= visible {
+        app.cursor + 1 - visible
+    } else {
+        0
+    };
+
     let items: Vec<ListItem> = ALL
         .iter()
         .enumerate()
+        .skip(offset)
+        .take(visible.max(1))
         .map(|(i, spec)| {
             let on = app.selected[i];
             let usable = !spec.raw || app.raw_ok;
@@ -204,21 +410,26 @@ fn draw_vectors(f: &mut Frame, area: Rect, app: &App) {
                 Span::styled(mark, mark_style),
                 Span::raw(" "),
                 Span::styled(
-                    format!("{:<5}", spec.layer),
+                    format!("{:<3}", spec.layer),
                     Style::default().fg(layer_color(spec.layer)),
                 ),
                 Span::styled(format!("{:<13}", spec.name), name_style),
-                Span::styled(spec.desc, Style::default().fg(Color::Rgb(100, 108, 116))),
             ];
-            if spec.needs_port {
-                spans.push(Span::styled(" :port", Style::default().fg(Color::Rgb(80, 88, 96))));
+            if spec.needs_port && area.width > 50 {
+                spans.push(Span::styled(" :p ", Style::default().fg(Color::Rgb(80, 88, 96))));
+            }
+            if area.width > 62 {
+                spans.push(Span::styled(
+                    spec.desc,
+                    Style::default().fg(Color::Rgb(100, 108, 116)),
+                ));
             }
             if let Some(c) = &counts {
                 let (_, pkts, _) = c[i];
                 if pkts > 0 {
-                    spans.push(Span::raw("  "));
+                    spans.push(Span::raw(" "));
                     spans.push(Span::styled(
-                        format!("{} p", human_rate(pkts as f64)),
+                        format!("{}p", human_rate(pkts as f64)),
                         Style::default().fg(ACCENT),
                     ));
                 }
@@ -231,11 +442,12 @@ fn draw_vectors(f: &mut Frame, area: Rect, app: &App) {
         })
         .collect();
 
-    let title = format!(
-        " vectors  {}/{} armed ",
-        app.selected.iter().filter(|s| **s).count(),
-        ALL.len()
-    );
+    let armed = app.selected.iter().filter(|s| **s).count();
+    let title = if area.width > 40 {
+        format!(" vectors  {armed}/{} ", ALL.len())
+    } else {
+        format!(" {armed}/{} ", ALL.len())
+    };
     let block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(DIM))
@@ -244,56 +456,61 @@ fn draw_vectors(f: &mut Frame, area: Rect, app: &App) {
 }
 
 fn draw_stats(f: &mut Frame, area: Rect, app: &App) {
-    let rows = Layout::vertical([Constraint::Length(1), Constraint::Length(1), Constraint::Length(1)])
-        .split(area);
     let (pkts, bytes, errs) = match &app.stats {
         Some(s) => (s.total_packets(), s.total_bytes(), s.errors()),
         None => (0, 0, 0),
     };
-    let elapsed = app
-        .started_at
-        .map(|t| t.elapsed().as_secs())
-        .unwrap_or(0);
-    let line = Line::from(vec![
-        Span::styled("rate  ", Style::default().fg(DIM)),
+    let elapsed = app.started_at.map(|t| t.elapsed().as_secs()).unwrap_or(0);
+    let mut spans = vec![
+        Span::styled("rate ", Style::default().fg(DIM)),
         Span::styled(
             format!("{} pps", human_rate(app.pps)),
             Style::default().fg(ACCENT).add_modifier(Modifier::BOLD),
         ),
-        Span::styled("   bw  ", Style::default().fg(DIM)),
+        Span::styled(" bw ", Style::default().fg(DIM)),
         Span::styled(
             format!("{}/s", crate::stats::human_bytes(app.bps as u64)),
             Style::default().fg(ACCENT),
         ),
-        Span::styled("   sent  ", Style::default().fg(DIM)),
-        Span::styled(format!("{pkts} pkts"), Style::default().fg(Color::White)),
-        Span::styled("   vol  ", Style::default().fg(DIM)),
+        Span::styled(" sent ", Style::default().fg(DIM)),
+        Span::styled(format!("{pkts}"), Style::default().fg(Color::White)),
+        Span::styled(" vol ", Style::default().fg(DIM)),
         Span::styled(crate::stats::human_bytes(bytes), Style::default().fg(Color::White)),
-        Span::styled("   err  ", Style::default().fg(DIM)),
+        Span::styled(" err ", Style::default().fg(DIM)),
         Span::styled(format!("{errs}"), Style::default().fg(if errs > 0 { BAD } else { DIM })),
-        Span::styled("   up  ", Style::default().fg(DIM)),
+        Span::styled(" up ", Style::default().fg(DIM)),
         Span::styled(format!("{elapsed}s"), Style::default().fg(Color::White)),
-    ]);
-    f.render_widget(Paragraph::new(line), rows[0]);
+    ];
+    if let Some(r) = app.remaining() {
+        spans.push(Span::styled(" left ", Style::default().fg(DIM)));
+        spans.push(Span::styled(
+            format!("{}s", r),
+            Style::default().fg(if r < 10 { BAD } else { WARN }),
+        ));
+    }
+    f.render_widget(Paragraph::new(Line::from(spans)), area);
 
-    // Log-scaled gauge of current packet rate.
-    let ratio = if app.pps <= 0.0 {
-        0.0
-    } else {
-        ((app.pps + 1.0).log10() / 7.0).clamp(0.0, 1.0)
-    };
-    let g = Gauge::default()
-        .gauge_style(Style::default().fg(ACCENT).bg(Color::Rgb(28, 32, 36)))
-        .ratio(ratio)
-        .label(format!("{} pps", human_rate(app.pps)));
-    f.render_widget(g, rows[1]);
-    f.render_widget(
-        Paragraph::new(Line::from(Span::styled(
-            app.message.clone(),
-            Style::default().fg(WARN),
-        ))),
-        rows[2],
-    );
+    if area.height >= 3 {
+        let ratio = if app.pps <= 0.0 {
+            0.0
+        } else {
+            ((app.pps + 1.0).log10() / 7.0).clamp(0.0, 1.0)
+        };
+        let g = Gauge::default()
+            .gauge_style(Style::default().fg(ACCENT).bg(Color::Rgb(28, 32, 36)))
+            .ratio(ratio)
+            .label(format!("{} pps", human_rate(app.pps)));
+        f.render_widget(g, Rect { y: area.y + 1, height: 1, ..area });
+    }
+    if area.height >= 3 {
+        f.render_widget(
+            Paragraph::new(Line::from(Span::styled(
+                app.message.clone(),
+                Style::default().fg(WARN),
+            ))),
+            Rect { y: area.y + 2, height: 1, ..area },
+        );
+    }
 }
 
 fn draw_log(f: &mut Frame, area: Rect, app: &App) {
@@ -312,8 +529,8 @@ fn draw_log(f: &mut Frame, area: Rect, app: &App) {
 
 fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
     let keys = match app.phase {
-        Phase::Input | Phase::Scanning => "Tab switch  Enter scan  Esc clear  Ctrl-C quit",
-        Phase::Ready => "Up/Down move  Space toggle  a all  n none  Enter start  Esc edit",
+        Phase::Input | Phase::Scanning => "Tab field  Enter scan  Esc clear  ^C quit",
+        Phase::Ready => "Space toggle  1-7 layer  m auto  a all  n none  Enter start",
         Phase::Running => "Enter/x stop  q quit",
         Phase::Stopped => "Enter restart  Esc edit  q quit",
     };
