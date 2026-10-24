@@ -2,9 +2,12 @@
 
 mod app;
 mod attack;
+mod bypass;
+mod health;
 mod net;
 mod stats;
 mod target;
+mod tls;
 mod ui;
 mod vectors;
 
@@ -120,6 +123,12 @@ async fn selftest(args: &[String]) -> io::Result<()> {
         t.tls
     );
 
+    let recon = bypass::run(&t.ips, t.port.unwrap_or(80), t.tls, &t.host).await;
+    println!("recon: {}", bypass::summary(&recon));
+    for n in &recon.notes {
+        println!("  note: {n}");
+    }
+
     let iface = raw::discover().ok();
     let raw = iface.as_ref().and_then(|i| RawSock::open(i).ok()).map(Arc::new);
     println!(
@@ -127,8 +136,7 @@ async fn selftest(args: &[String]) -> io::Result<()> {
         iface.as_ref().map(|i| i.name.clone()),
         raw.is_some()
     );
-    let plan = if args.len() > 5 {
-        args[5..]
+    let plan = if args.len() > 5 {        args[5..]
             .iter()
             .filter_map(|n| vectors::ALL.iter().find(|s| s.name == n).map(|s| s.vector))
             .collect::<Vec<_>>()
@@ -144,6 +152,7 @@ async fn selftest(args: &[String]) -> io::Result<()> {
         iface,
         raw,
         stats: stats.clone(),
+        cookie: recon.cookie.clone(),
         budgets: vectors::ALL
             .iter()
             .map(|s| Arc::new(attack::Budget::new(attack::raw_rate(s.vector))))

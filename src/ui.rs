@@ -7,6 +7,8 @@ use ratatui::widgets::{Block, Borders, Gauge, List, ListItem, Paragraph, Wrap};
 use ratatui::Frame;
 
 use crate::app::{App, Phase};
+use crate::bypass;
+use crate::health;
 use crate::stats::human_rate;
 use crate::vectors::ALL;
 
@@ -347,6 +349,13 @@ fn draw_target(f: &mut Frame, area: Rect, app: &App, compact: bool) {
             ),
         ]));
     }
+    if let Some(r) = &app.recon {
+        let color = if r.cdn.is_some() { WARN } else { OK };
+        lines.push(Line::from(vec![
+            Span::styled("bypass  ", Style::default().fg(DIM)),
+            Span::styled(bypass::summary(r), Style::default().fg(color)),
+        ]));
+    }
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
         Span::styled("iface   ", Style::default().fg(DIM)),
@@ -488,6 +497,25 @@ fn draw_stats(f: &mut Frame, area: Rect, app: &App) {
             Style::default().fg(if r < 10 { BAD } else { WARN }),
         ));
     }
+    if let Some(h) = &app.health {
+        let (label, color) = match h.state() {
+            health::UP => (format!("{}ms", h.avg_ms()), OK),
+            health::DEGRADED => ("degraded".to_string(), WARN),
+            health::DOWN => ("DOWN".to_string(), BAD),
+            _ => ("-".to_string(), DIM),
+        };
+        spans.push(Span::styled(" health ", Style::default().fg(DIM)));
+        spans.push(Span::styled(
+            label,
+            Style::default().fg(color).add_modifier(Modifier::BOLD),
+        ));
+        if let Some(p) = h.success_pct() {
+            spans.push(Span::styled(
+                format!(" {:.0}%", p * 100.0),
+                Style::default().fg(if p < 0.9 { BAD } else { DIM }),
+            ));
+        }
+    }
     f.render_widget(Paragraph::new(Line::from(spans)), area);
 
     if area.height >= 3 {
@@ -530,7 +558,7 @@ fn draw_log(f: &mut Frame, area: Rect, app: &App) {
 fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
     let keys = match app.phase {
         Phase::Input | Phase::Scanning => "Tab field  Enter scan  Esc clear  ^C quit",
-        Phase::Ready => "Space toggle  1-7 layer  m auto  a all  n none  Enter start",
+        Phase::Ready => "Space toggle  1-7 layer  m auto  o origin  Enter start",
         Phase::Running => "Enter/x stop  q quit",
         Phase::Stopped => "Enter restart  Esc edit  q quit",
     };

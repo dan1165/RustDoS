@@ -27,6 +27,34 @@ By default the tool picks the layers for you from what the scan found. Press
 `m` to switch to manual, then `Space` to toggle single vectors or `1`-`7` to
 toggle a whole layer. Any manual toggle drops you out of auto mode.
 
+## Health probe
+
+While an attack runs, a background prober connects to the target port every
+500 ms and reports latency, success ratio and a state (`up`, `degraded`,
+`down`). This is the signal that the target is actually suffering rather than
+just that packets are leaving.
+
+## Bypass
+
+After the scan, recon runs automatically:
+
+- **CDN detection** by Cloudflare's published ranges and by response headers
+  (Cloudflare, Fastly, CloudFront, Akamai, Varnish).
+- **Origin discovery** — resolves ~34 likely subdomains, drops any that still
+  point at the CDN, and confirms candidates by requesting the site with the
+  real `Host` header. Press `o` to retarget at a found origin.
+- **Challenge detection** — Cloudflare JS challenges and Anubis proof-of-work
+  are identified. Anubis is actually solved (SHA-256 PoW) and the resulting
+  cookie is reused by the HTTP vectors.
+- **Edge evasion** — HTTP vectors send a random query string to defeat caching,
+  rotate a browser `User-Agent`, send `Cache-Control: no-cache`, and back off
+  when the target answers 429/403/503.
+
+Honest limits: a Cloudflare JavaScript challenge or Turnstile cannot be solved
+without a JS engine, so those are reported rather than defeated. Origin
+discovery only helps when a subdomain leaks the real address; sites that proxy
+everything have no origin to find.
+
 ## Vectors
 
 | Layer | Vector        | What it does                              |
@@ -71,7 +99,7 @@ greyed out in the list.
 | Context | Keys |
 |---------|------|
 | Input   | type target, `Tab`/`Shift-Tab` cycle fields, `Enter` scan, `Esc` clear, `Ctrl-C` quit |
-| Armed   | `Up`/`Down` move, `Space` toggle, `1`-`7` toggle layer, `m` auto/manual, `a` arm all, `n` arm none, `Enter` start, `Esc` edit |
+| Armed   | `Up`/`Down` move, `Space` toggle, `1`-`7` toggle layer, `m` auto/manual, `o` retarget origin, `a` arm all, `n` arm none, `Enter` start, `Esc` edit |
 | Running | `Enter` or `x` stop, `q` quit |
 | Stopped | `Enter` restart, `Esc` edit, `q` quit |
 
@@ -144,11 +172,14 @@ take more.
 
 ```
 src/main.rs      entry point, TUI loop, headless mode
-src/app.rs       state machine and key handling
-src/ui.rs        ratatui rendering
-src/target.rs    parsing, resolution, fingerprinting
+src/app.rs       state machine, deadline, auto/manual
+src/ui.rs        responsive ratatui rendering
+src/target.rs    parsing, resolution, port scan, fingerprinting
 src/vectors.rs   vector catalogue and auto-plan
-src/attack.rs    worker loops, budgets, TLS setup
+src/attack.rs    worker loops, budgets
+src/bypass.rs    CDN detection, origin discovery, challenge solving
+src/health.rs    target health prober
+src/tls.rs       rustls config (no certificate verification)
 src/net/raw.rs   AF_PACKET socket, checksums, packet builders
 src/stats.rs     lock-free counters
 ```

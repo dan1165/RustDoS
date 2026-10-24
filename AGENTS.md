@@ -52,9 +52,13 @@ Then wire it up in `src/attack.rs`: `workers()`, `raw_rate()`, and either `raw_w
 - **The three input fields stay visible at every terminal size.** `ui::plan` has four tiers; the compact target panel drops its info line before it drops a field. Don't move the fields behind a breakpoint.
 - **Time limits are minutes in the TUI, seconds in `--test`.** `0` or empty means unlimited. The deadline is checked in `App::tick`, not by the workers.
 - **Port scanning is the default when no port is given** and sweeps all 65535 ports at 1200 concurrency. A full scan takes ~20-30s; pass a port to skip it.
+- **`bypass.rs` runs recon after every scan** (CDN detect, origin discovery, challenge solve). It costs a few seconds and several DNS lookups; it is not on the attack path.
+- **The Cloudflare CIDR list is hardcoded** from `cloudflare.com/ips-v4`. It goes stale; refresh it if detection starts missing.
+- **The Anubis solver is a real SHA-256 PoW loop** capped at 5M nonces. Verify it with the mock server recipe in the commit message rather than a live site, which may rate-limit.
+- **No JS engine**, so Cloudflare JS challenges and Turnstile are detected but not solved. Don't claim otherwise in docs.
 
 ## Layout
 
-`main.rs` entry + TUI loop + headless mode · `app.rs` state machine, deadline, auto/manual · `ui.rs` responsive ratatui · `target.rs` parse/resolve/scan/fingerprint · `vectors.rs` catalogue + auto-plan · `attack.rs` workers/budgets/TLS · `net/raw.rs` AF_PACKET, checksums, packet builders · `stats.rs` counters.
+`main.rs` entry + TUI loop + headless mode · `app.rs` state machine, deadline, auto/manual · `ui.rs` responsive ratatui · `target.rs` parse/resolve/scan/fingerprint · `vectors.rs` catalogue + auto-plan · `attack.rs` workers/budgets · `bypass.rs` CDN/origin/challenge · `health.rs` prober · `tls.rs` rustls config · `net/raw.rs` AF_PACKET, checksums, packet builders · `stats.rs` counters.
 
 Platform is Alpine/musl/aarch64; `gcc` and `musl-dev` are required for linking.
