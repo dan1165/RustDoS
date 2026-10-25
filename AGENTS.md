@@ -57,8 +57,9 @@ Then wire it up in `src/attack.rs`: `workers()`, `raw_rate()`, and either `raw_w
 - **The Anubis solver is a real SHA-256 PoW loop** capped at 5M nonces. Verify it with the mock server recipe in the commit message rather than a live site, which may rate-limit.
 - **The JS engine needs its own big-stack thread.** Boa overflows tokio's 2 MB worker stacks on real challenge scripts. `bypass.rs` spawns a 32 MB thread and uses `Handle::block_on` for fetches. `boa_engine::Context` is not `Send`, so all JS work must stay inside that one thread.
 - **Cloudflare's managed challenge does not complete.** The orchestrate script is obfuscated and wants a real DOM. Don't claim `cf_clearance` works. Verify the mechanism with the mock challenge (inline script → dynamic load → cookie capture), not a live site.
-- **crt.sh is unreliable** (frequent 502). `crt_sh` retries 3× then `run()` falls back to the static `SUBDOMAINS` list. Keep the fallback.
+- **crt.sh is unreliable** (frequent 502). `crt_sh` retries 3×, then the run continues with the user's own domain — no static fallback for subdomains. `SUBDOMAINS` is now only used for origin discovery. Test the prompt path with `RUSTDOS_CRT_HOST`/`RUSTDOS_CRT_PORT` pointed at a mock.
 - **Subdomains are verified before being offered.** Only names that still resolve reach the selection list; don't drop that step.
+- **The flow is a wizard: `SubPrompt` → `Subdomains` → `Layers` → `Ready`.** Layers are a per-domain `u8` bitmask (`L1`=1 … `L7`=64) in `App::layers`, parallel to `App::targets`. Vectors are derived from the mask at launch, so there is no separate per-vector selection any more.
 
 ## Layout
 

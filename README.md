@@ -21,11 +21,18 @@ fire. An optional time limit stops the run for you.
 | port | Optional. Leave empty to scan all 65535 ports and pick the best service. |
 | minutes | Optional. `2` = two minutes, `0` or empty = unlimited. |
 
-## Automatic vs manual
+## Flow
 
-By default the tool picks the layers for you from what the scan found. Press
-`m` to switch to manual, then `Space` to toggle single vectors or `1`-`7` to
-toggle a whole layer. Any manual toggle drops you out of auto mode.
+1. Enter a target and press `Enter`.
+2. Subdomains are loaded from crt.sh **first, always**. If crt.sh fails, the
+   run carries on with your own domain.
+3. If subdomains were found you are asked whether to attack them too. `y`
+   opens a list to pick from; `n` continues with your domain alone.
+4. A layer screen lists every domain with `L1`-`L7`. Layers are pre-filled
+   automatically from the detected service. Move with `Up`/`Down` and
+   `Left`/`Right`, toggle with `Space`, or use `a` (auto for all), `s` (all
+   layers), `n` (none).
+5. `Enter` reviews, `Enter` again starts.
 
 ## Health probe
 
@@ -36,8 +43,10 @@ just that packets are leaving.
 
 ## Bypass
 
-After the scan, recon runs automatically:
-
+- **Subdomain discovery** — names come from certificate transparency (crt.sh),
+  loaded before any port work. Only names that still resolve are offered, and
+  you are asked whether to attack them at all. Selected subdomains are attacked
+  alongside the primary target.
 - **CDN detection** by Cloudflare's published ranges and by response headers
   (Cloudflare, Fastly, CloudFront, Akamai, Varnish).
 - **Origin discovery** — resolves ~34 likely subdomains, drops any that still
@@ -46,10 +55,6 @@ After the scan, recon runs automatically:
 - **Challenge detection** — Cloudflare JS challenges and Anubis proof-of-work
   are identified. Anubis is actually solved (SHA-256 PoW) and the resulting
   cookie is reused by the HTTP vectors.
-- **Subdomain discovery** — pulls names from certificate transparency (crt.sh),
-  keeps only those that still resolve, and offers them as extra targets. `Space`
-  selects, `a` selects all, `Enter` confirms. Selected subdomains are attacked
-  alongside the primary target.
 - **Edge evasion** — HTTP vectors send a random query string to defeat caching,
   rotate a browser `User-Agent`, send `Cache-Control: no-cache`, and back off
   when the target answers 429/403/503.
@@ -111,10 +116,12 @@ greyed out in the list.
 | Context | Keys |
 |---------|------|
 | Input   | type target, `Tab`/`Shift-Tab` cycle fields, `Enter` scan, `Esc` clear, `Ctrl-C` quit |
-| Armed   | `Up`/`Down` move, `Space` toggle, `1`-`7` toggle layer, `m` auto/manual, `o` retarget origin, `a` arm all, `n` arm none, `Enter` start, `Esc` edit |
+| Subdomains? | `y` pick subdomains, `n` primary domain only |
+| Subdomains | `Up`/`Down` move, `Space` select, `a` all, `Enter` confirm, `Esc` skip |
+| Layers  | `Up`/`Down` domain, `Left`/`Right` layer, `Space` toggle, `a` auto, `s` all, `n` none, `Enter` review, `Esc` edit |
+| Review  | `Enter` start, `o` retarget at origin, `Esc` back to layers |
 | Running | `Enter` or `x` stop, `q` quit |
 | Stopped | `Enter` restart, `Esc` edit, `q` quit |
-| Subdomains | `Up`/`Down` move, `Space` select, `a` all, `Enter` confirm, `Esc` skip |
 
 ## Layout
 

@@ -451,20 +451,20 @@ pub async fn run(ips: &[Ipv4Addr], port: u16, tls: bool, host: &str) -> Recon {
         }
     }
 
-    // Subdomains from certificate transparency, kept only if they still resolve.
-    // crt.sh is unreliable, so fall back to the static candidate list.
-    let mut names = crt_sh(host).await;
+    // Subdomains from certificate transparency. On failure we simply carry on
+    // with the user's own domain rather than inventing candidates.
+    let names = crt_sh(host).await;
     if names.is_empty() {
-        recon.notes.push("crt.sh unavailable, using static list".into());
-        names = SUBDOMAINS.iter().map(|s| format!("{s}.{host}")).collect();
+        recon.notes.push("crt.sh unavailable, primary domain only".into());
     } else {
         recon.notes.push(format!("crt.sh: {} names", names.len()));
+        let mut names = names;
         names.truncate(200);
+        recon.subs = verify_subs(names).await;
+        recon
+            .notes
+            .push(format!("{} subdomains still resolve", recon.subs.len()));
     }
-    recon.subs = verify_subs(names).await;
-    recon
-        .notes
-        .push(format!("{} subdomains still resolve", recon.subs.len()));
 
     if recon.cdn.is_some() {
         let mut set = tokio::task::JoinSet::new();
@@ -547,10 +547,16 @@ pub async fn crt_sh(host: &str) -> Vec<String> {
 }
 
 async fn crt_sh_once(host: &str) -> Option<Vec<String>> {
-    let ips = resolve("crt.sh".into()).await;
+    let crt_host = std::env::var("RUSTDOS_CRT_HOST").unwrap_or_else(|_| "crt.sh".into());
+    let port: u16 = std::env::var("RUSTDOS_CRT_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(443);
+    let tls = port == 443;
+    let ips = resolve(crt_host.clone()).await;
     let &ip = ips.first()?;
     let path = format!("/?q=%25.{host}&output=json");
-    let r = request(ip, 443, true, "crt.sh", &path, None, "GET").await?;
+    let r = request(ip, port, tls, &crt_host, &path, None, "GET").await?;
     if r.status != 200 {
         return None;
     }

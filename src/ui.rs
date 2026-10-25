@@ -18,6 +18,12 @@ const OK: Color = Color::Rgb(120, 230, 120);
 const WARN: Color = Color::Rgb(240, 200, 90);
 const BAD: Color = Color::Rgb(240, 110, 110);
 
+fn layer_bit(layer: &str) -> u8 {
+    match layer {
+        "L1" => 1, "L2" => 2, "L3" => 4, "L4" => 8, "L5" => 16, "L6" => 32, _ => 64,
+    }
+}
+
 fn layer_color(layer: &str) -> Color {
     match layer {
         "L1" => Color::Rgb(255, 140, 200),
@@ -125,10 +131,11 @@ pub fn draw(f: &mut Frame, app: &App) {
     if let Some(t) = p.target {
         draw_target(f, t, app, p.compact);
     }
-    if app.phase == Phase::Subdomains {
-        draw_subs(f, p.vectors, app);
-    } else {
-        draw_vectors(f, p.vectors, app);
+    match app.phase {
+        Phase::SubPrompt => draw_subprompt(f, p.vectors, app),
+        Phase::Subdomains => draw_subs(f, p.vectors, app),
+        Phase::Layers => draw_layers(f, p.vectors, app),
+        _ => draw_vectors(f, p.vectors, app),
     }
     draw_stats(f, p.stats, app);
     if let Some(l) = p.log {
@@ -145,6 +152,8 @@ fn state_of(app: &App) -> (&'static str, Color) {
         Phase::Running => ("ATTACKING", BAD),
         Phase::Stopped => ("STOPPED", WARN),
         Phase::Subdomains => ("SUBDOMAINS", ACCENT),
+        Phase::SubPrompt => ("SUBDOMAINS?", WARN),
+        Phase::Layers => ("LAYERS", ACCENT),
     }
 }
 
@@ -399,6 +408,89 @@ fn draw_target(f: &mut Frame, area: Rect, app: &App, compact: bool) {
     );
 }
 
+fn draw_subprompt(f: &mut Frame, area: Rect, app: &App) {
+    let lines = vec![
+        Line::from(""),
+        Line::from(vec![
+            Span::styled(
+                format!("{} subdomains found", app.subs.len()),
+                Style::default().fg(ACCENT).add_modifier(Modifier::BOLD),
+            ),
+            Span::styled(" via crt.sh", Style::default().fg(DIM)),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::styled("Attack them too?  ", Style::default().fg(Color::White)),
+            Span::styled("[y]", Style::default().fg(OK).add_modifier(Modifier::BOLD)),
+            Span::styled(" yes   ", Style::default().fg(DIM)),
+            Span::styled("[n]", Style::default().fg(WARN).add_modifier(Modifier::BOLD)),
+            Span::styled(" primary domain only", Style::default().fg(DIM)),
+        ]),
+        Line::from(""),
+        Line::from(Span::styled(
+            "y then pick which, or n to carry on with your domain",
+            Style::default().fg(DIM),
+        )),
+    ];
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(ACCENT))
+        .title(Span::styled(" subdomains ", Style::default().fg(ACCENT)));
+    f.render_widget(
+        Paragraph::new(lines).block(block).wrap(Wrap { trim: true }),
+        area,
+    );
+}
+
+fn draw_layers(f: &mut Frame, area: Rect, app: &App) {
+    let visible = area.height.saturating_sub(2) as usize;
+    let offset = if visible > 0 && app.layer_domain >= visible {
+        app.layer_domain + 1 - visible
+    } else {
+        0
+    };
+    let items: Vec<ListItem> = app
+        .targets
+        .iter()
+        .enumerate()
+        .skip(offset)
+        .take(visible.max(1))
+        .map(|(i, t)| {
+            let mask = app.layers.get(i).copied().unwrap_or(0);
+            let mut spans = vec![Span::styled(
+                format!("{:<28}", t.host),
+                Style::default().fg(Color::White),
+            )];
+            for col in 0..7u8 {
+                let on = mask & (1 << col) != 0;
+                let focused = i == app.layer_domain && col as usize == app.layer_col;
+                let style = if focused {
+                    Style::default()
+                        .fg(if on { OK } else { Color::White })
+                        .add_modifier(Modifier::REVERSED)
+                } else if on {
+                    Style::default().fg(OK)
+                } else {
+                    Style::default().fg(Color::Rgb(80, 88, 96))
+                };
+                spans.push(Span::styled(format!("L{}", col + 1), style));
+                spans.push(Span::raw(" "));
+            }
+            let mut item = ListItem::new(Line::from(spans));
+            if i == app.layer_domain {
+                item = item.style(Style::default().bg(Color::Rgb(30, 40, 48)));
+            }
+            item
+        })
+        .collect();
+    let title = format!(" layers  {} domain(s) ", app.targets.len());
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(ACCENT))
+        .title(Span::styled(title, Style::default().fg(ACCENT)));
+    f.render_widget(List::new(items).block(block), area);
+}
+
 fn draw_subs(f: &mut Frame, area: Rect, app: &App) {
     let visible = area.height.saturating_sub(2) as usize;
     let offset = if visible > 0 && app.sub_cursor >= visible {
@@ -461,7 +553,7 @@ fn draw_vectors(f: &mut Frame, area: Rect, app: &App) {
         .skip(offset)
         .take(visible.max(1))
         .map(|(i, spec)| {
-            let on = app.selected[i];
+            let on = app.active_mask() & layer_bit(spec.layer) != 0;
             let usable = !spec.raw || app.raw_ok;
             let mark = if on { "[x]" } else { "[ ]" };
             let mark_style = if on {
@@ -512,7 +604,10 @@ fn draw_vectors(f: &mut Frame, area: Rect, app: &App) {
         })
         .collect();
 
-    let armed = app.selected.iter().filter(|s| **s).count();
+    let armed = ALL
+        .iter()
+        .filter(|s| app.active_mask() & layer_bit(s.layer) != 0)
+        .count();
     let title = if area.width > 40 {
         format!(" vectors  {armed}/{} ", ALL.len())
     } else {
@@ -623,6 +718,8 @@ fn draw_footer(f: &mut Frame, area: Rect, app: &App) {
         Phase::Running => "Enter/x stop  q quit",
         Phase::Stopped => "Enter restart  Esc edit  q quit",
         Phase::Subdomains => "Space select  a all  Enter confirm  Esc skip",
+        Phase::SubPrompt => "y attack subdomains  n primary only",
+        Phase::Layers => "Up/Down domain  Left/Right layer  Space  a auto  s all  Enter start",
     };
     f.render_widget(
         Paragraph::new(Line::from(Span::styled(keys, Style::default().fg(DIM)))),
