@@ -53,7 +53,7 @@ fn iface_ip(name: &str) -> Option<Ipv4Addr> {
         for (i, b) in bytes.iter().enumerate() {
             ifr.ifr_name[i] = *b as libc::c_char;
         }
-        let rc = libc::ioctl(fd, libc::SIOCGIFADDR as i32, &mut ifr);
+        let rc = libc::ioctl(fd, libc::SIOCGIFADDR as _, &mut ifr);
         libc::close(fd);
         if rc < 0 {
             return None;
@@ -238,7 +238,7 @@ impl RawSock {
                 self.fd,
                 msgs.as_mut_ptr(),
                 msgs.len() as libc::c_uint,
-                libc::MSG_DONTWAIT as libc::c_uint,
+                libc::MSG_DONTWAIT as _,
             )
         };
         if n < 0 {
