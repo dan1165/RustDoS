@@ -43,7 +43,8 @@ jobs:
         run: |
           curl -fL -o sdk.tar.zst "$SDK_URL"
           tar -I zstd -xf sdk.tar.zst
-          xtool sdk install darwin.artifactbundle --slim
+          mv darwin.artifactbundle darwin.xtoolsdk
+          xtool sdk install darwin.xtoolsdk
 
       - name: Build unsigned IPA
         working-directory: ios
