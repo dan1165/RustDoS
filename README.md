@@ -1,6 +1,7 @@
 # RustDoS
 
-A multi-layer (L1-L7) DDoS stress tester with a terminal UI, written in Rust.
+A multi-layer (L1-L7) DDoS stress tester with a terminal UI, written in Rust,
+plus a native SwiftUI iOS app (see [iOS app](#ios-app)).
 
 You give it one thing — an IP, a domain, or a URL — and an optional port. It
 resolves the target, scans every port when you do not name one, fingerprints
@@ -173,6 +174,33 @@ makes SYN floods disproportionately expensive. Defaults:
 
 Raise them in `raw_rate()` in `src/attack.rs` if your link and upstream can
 take more.
+
+## iOS app
+
+`ios/` is a SwiftUI port of the same tool, built with
+[xtool](https://github.com/xtool-org/xtool). It is a native app, not a terminal
+emulator: target entry, a live port grid, per-layer vector toggles, live
+packet/throughput counters and a health pill.
+
+```sh
+cd ios
+xtool dev build -c release --ipa   # -> ios/xtool/RustDoS.ipa
+```
+
+`.github/workflows/ios.yml` builds an **unsigned** IPA on every push that
+touches `ios/` and uploads it as the `RustDoS-unsigned-ipa` artifact. Install it
+with AltStore/Sideloadly, or sign it with your own certificate.
+
+Differences from the desktop build:
+
+- **No L1/L2.** iOS has no `AF_PACKET`, so `eth-flood` and `arp-flood` are
+  gone. L3-L7 raw vectors use `SOCK_RAW` + `IP_HDRINCL`, which works in the app
+  sandbox without root.
+- **No JavaScript challenge solving.** The Boa engine has no iOS counterpart
+  here; Cloudflare/Anubis challenges are detected but not solved.
+- **Subdomains are opt-in.** crt.sh names are listed and verified, but the app
+  attacks the primary host unless you select them.
+- Origin discovery is listed, not auto-retargeted.
 
 ## Notes and limits
 

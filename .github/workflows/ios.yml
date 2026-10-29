@@ -1,0 +1,35 @@
+name: iOS IPA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install xtool
+        run: |
+          curl -fL https://github.com/xtool-org/xtool/releases/latest/download/xtool.app.zip -o xtool.zip
+          unzip -q xtool.zip
+          echo "$PWD/xtool.app/Contents/MacOS" >> "$GITHUB_PATH"
+
+      - name: Build unsigned IPA
+        working-directory: ios
+        run: xtool dev build -c release --ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RustDoS-unsigned-ipa
+          path: ios/xtool/RustDoS.ipa
+          if-no-files-found: error

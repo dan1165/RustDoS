@@ -66,3 +66,13 @@ Then wire it up in `src/attack.rs`: `workers()`, `raw_rate()`, and either `raw_w
 `main.rs` entry + TUI loop + headless mode · `app.rs` state machine, deadline, auto/manual · `ui.rs` responsive ratatui · `target.rs` parse/resolve/scan/fingerprint · `vectors.rs` catalogue + auto-plan · `attack.rs` workers/budgets · `bypass.rs` CDN/origin/crt.sh/challenge · `health.rs` prober · `js.rs` Boa runner · `tls.rs` rustls config · `net/raw.rs` AF_PACKET, checksums, packet builders · `stats.rs` counters.
 
 Platform is Alpine/musl/aarch64; `gcc` and `musl-dev` are required for linking.
+
+## iOS app (`ios/`)
+
+SwiftUI port, built with xtool (`xtool dev build -c release --ipa`). Same
+vector catalogue minus L1/L2 (no AF_PACKET on iOS). Raw vectors use
+`SOCK_RAW` + `IP_HDRINCL`; Darwin wants `ip_len`/`ip_off` in host byte order
+and the kernel zeroes `ip_sum` itself.
+
+`xtool dev build` is the only compile gate; there is no simulator on Linux.
+Keep the app native SwiftUI — no terminal lookalike.
