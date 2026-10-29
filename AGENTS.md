@@ -76,3 +76,8 @@ and the kernel zeroes `ip_sum` itself.
 
 `xtool dev build` is the only compile gate; there is no simulator on Linux.
 Keep the app native SwiftUI — no terminal lookalike.
+
+CI (`.github/workflows/ios.yml`) pins xtool 1.22.2 + Swift 6.4.1 and installs
+the prebuilt SDK from the `ios-sdk` release. Bump both together and rebuild
+that asset (`xtool sdk build Xcode.xip <dir>`) when moving versions, or the
+slim-SDK version check fails.
