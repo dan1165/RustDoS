@@ -32,7 +32,6 @@ final class AppModel {
     var openPorts: [UInt16] = []
     var scanned = 0
     var scanTotal = 65_535
-    var scanning = false
     var service: Service = .unknown
     var cdn: String?
     var subdomains: [(name: String, ips: [String])] = []
@@ -86,7 +85,6 @@ final class AppModel {
         phase = .scanning
         openPorts = []
         scanned = 0
-        scanning = true
         scanTotal = port == nil ? 65_535 : 1
         subdomains = []
         selectedSubs = []
@@ -113,7 +111,6 @@ final class AppModel {
             if let best { target?.port = best }
         }
 
-        scanning = false
         scanToken = nil
         target?.service = service
         if service == .https { target?.tls = true }
@@ -127,7 +124,6 @@ final class AppModel {
 
     func cancelScan() {
         scanToken?.cancel()
-        scanning = false
         phase = .setup
     }
 
@@ -141,12 +137,14 @@ final class AppModel {
             cdn = Recon.cdn(byHeaders: headers)
         }
         let names = await Recon.crtSh(target.host)
-        let verified = Recon.verify(names)
+        let verified = await Task.detached { Recon.verify(names) }.value
         subdomains = verified
         if let port = target.port {
-            origins = Recon.originCandidates(target.host)
-                .filter { Recon.servesHost(ip: $0.1, port: port, host: target.host) }
-                .map(\.0)
+            origins = await Task.detached {
+                Recon.originCandidates(target.host)
+                    .filter { Recon.servesHost(ip: $0.1, port: port, host: target.host) }
+                    .map(\.0)
+            }.value
         }
     }
 
@@ -159,7 +157,12 @@ final class AppModel {
         target.service = service
         self.target = target
 
-        let state = Engine.start(target: target, vectors: Array(selected), port: port)
+        var targets = [target]
+        for name in selectedSubs {
+            let ips = Recon.resolve(name)
+            if !ips.isEmpty { targets.append(Target(host: name, port: port, ips: ips, service: service, tls: target.tls)) }
+        }
+        let state = Engine.start(targets: targets, vectors: Array(selected), port: port)
         self.state = state
         snapshot = Snapshot()
         elapsed = 0
@@ -180,15 +183,6 @@ final class AppModel {
         prober?.cancel()
         state = nil
         phase = .stopped
-    }
-
-    func restart() {
-        phase = .selecting
-        snapshot = Snapshot()
-        elapsed = 0
-        pps = 0
-        bps = 0
-        health = .unknown
     }
 
     func reset() {
@@ -219,6 +213,7 @@ final class AppModel {
                 let now = state.snapshot()
                 let dt = Date().timeIntervalSince(lastTime)
                 self.snapshot = now
+                self.rawOK = state.rawAvailable
                 self.elapsed = Date().timeIntervalSince(lastTime) + self.elapsed
                 if dt > 0 {
                     self.pps = Double(now.totalPackets - last.totalPackets) / dt

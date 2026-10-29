@@ -15,6 +15,9 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    timeout-minutes: 30
+    env:
+      CI: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +26,13 @@ jobs:
           curl -fL https://github.com/xtool-org/xtool/releases/latest/download/xtool.app.zip -o xtool.zip
           unzip -q xtool.zip
           echo "$PWD/xtool.app/Contents/MacOS" >> "$GITHUB_PATH"
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+          xtool --version
+          swift sdk list
 
       - name: Build unsigned IPA
         working-directory: ios

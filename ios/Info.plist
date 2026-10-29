@@ -6,6 +6,11 @@
 	<string>RustDoS</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>RustDoS connects to hosts on your local network to scan and stress test them.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>UIStatusBarStyle</key>
 	<string>UIStatusBarStyleLightContent</string>
 	<key>UIUserInterfaceStyle</key>

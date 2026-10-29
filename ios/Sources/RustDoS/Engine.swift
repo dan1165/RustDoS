@@ -63,15 +63,17 @@ enum Engine {
         "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
     ]
 
-    static func start(target: Target, vectors: [Vector], port: UInt16) -> RunState {
+    static func start(targets: [Target], vectors: [Vector], port: UInt16) -> RunState {
         let state = RunState()
-        for v in vectors {
-            for _ in 0..<v.workers {
-                DispatchQueue.global(qos: .userInitiated).async {
-                    if v.needsRaw {
-                        rawWorker(state, v, target: target, port: port)
-                    } else {
-                        asyncWorker(state, v, target: target, port: port)
+        for target in targets {
+            for v in vectors {
+                for _ in 0..<v.workers {
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        if v.needsRaw {
+                            rawWorker(state, v, target: target, port: port)
+                        } else {
+                            asyncWorker(state, v, target: target, port: port)
+                        }
                     }
                 }
             }

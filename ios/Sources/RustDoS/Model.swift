@@ -105,11 +105,11 @@ enum Vector: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .icmpFlood, .ipFrag, .udpRaw, .synFlood, .ackFlood, .rstFlood: 1
         case .udpFlood: 4
-        case .tcpConnect: 96
-        case .httpGet, .httpPost: 48
-        case .tlsFlood: 24
-        case .dnsFlood: 16
-        case .slowloris: 64
+        case .tcpConnect: 64
+        case .httpGet, .httpPost: 32
+        case .tlsFlood: 16
+        case .dnsFlood: 8
+        case .slowloris: 32
         }
     }
 

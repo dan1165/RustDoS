@@ -137,7 +137,8 @@ enum Recon {
                 DispatchQueue.global(qos: .utility).async {
                     defer { group.leave() }
                     while !token.cancelled, let p = take() {
-                        if probe(ip: ip, port: p, timeoutMs: 400) != nil {
+                        if let fd = Net.connect(ip, p, timeoutMs: 400) {
+                            close(fd)
                             lock.lock()
                             found.append(p)
                             lock.unlock()
