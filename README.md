@@ -191,6 +191,11 @@ xtool dev build -c release --ipa   # -> ios/xtool/RustDoS.ipa
 touches `ios/` and uploads it as the `RustDoS-unsigned-ipa` artifact. Install it
 with AltStore/Sideloadly, or sign it with your own certificate.
 
+The workflow runs on Ubuntu with a pinned Swift/xtool pair and a prebuilt
+Darwin SDK from the `ios-sdk` release, so it needs no Xcode.xip and no Apple
+ID. Rebuild that asset with `xtool sdk build Xcode.xip <dir>` if the pinned
+xtool version moves.
+
 Differences from the desktop build:
 
 - **No L1/L2.** iOS has no `AF_PACKET`, so `eth-flood` and `arp-flood` are
