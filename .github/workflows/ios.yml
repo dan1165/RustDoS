@@ -27,12 +27,17 @@ jobs:
           unzip -q xtool.zip
           echo "$PWD/xtool.app/Contents/MacOS" >> "$GITHUB_PATH"
 
-      - name: Toolchain
-        run: |
-          xcodebuild -version
-          swift --version
-          xtool --version
-          swift sdk list
+      - name: xcodebuild
+        run: xcodebuild -version
+
+      - name: swift
+        run: swift --version
+
+      - name: xtool version
+        run: xtool --version
+
+      - name: swift sdks
+        run: swift sdk list
 
       - name: Build unsigned IPA
         working-directory: ios
