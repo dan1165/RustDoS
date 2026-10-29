@@ -1,0 +1,677 @@
+[
+  {
+    "isFramework" : true,
+    "moduleName" : "Accessibility",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Accessibility.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "Combine",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Combine.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "CoreAudio",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreAudio.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "CoreData",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreData.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "CoreFoundation",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreFoundation.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "CoreGraphics",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreGraphics.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "CoreImage",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreImage.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "CoreLocation",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreLocation.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "CoreMedia",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreMedia.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "CoreMotion",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreMotion.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "CoreText",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreText.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "CoreTransferable",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreTransferable.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "CoreVideo",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/CoreVideo.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "Darwin",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Darwin.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "DataDetection",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/DataDetection.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "DeveloperToolsSupport",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/DeveloperToolsSupport.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "Dispatch",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Dispatch.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "Distributed",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Distributed.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "FileProvider",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/FileProvider.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "Foundation",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Foundation.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "ImageIO",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/ImageIO.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "Metal",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Metal.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "Network",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Network.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "OSLog",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/OSLog.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "ObjectiveC",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/ObjectiveC.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "Observation",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Observation.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "QuartzCore",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/QuartzCore.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "Spatial",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Spatial.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "Swift",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Swift.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "SwiftUI",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/SwiftUI.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "SwiftUICore",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/SwiftUICore.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "Symbols",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/Symbols.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "System",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/System.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : true,
+    "moduleName" : "UIKit",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/UIKit.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "UniformTypeIdentifiers",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/UniformTypeIdentifiers.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "XPC",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/XPC.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "_Builtin_float",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/_Builtin_float.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "_Concurrency",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/_Concurrency.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "_DarwinFoundation1",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/_DarwinFoundation1.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "_DarwinFoundation2",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/_DarwinFoundation2.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "_DarwinFoundation3",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/_DarwinFoundation3.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "_StringProcessing",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/_StringProcessing.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "os",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/os.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "isFramework" : false,
+    "moduleName" : "simd",
+    "modulePath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/swift\/iphoneos\/prebuilt-modules\/27.1\/simd.swiftmodule\/arm64e-apple-ios.swiftmodule"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/Accessibility.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Accessibility-BTD74SD922PJ4CIV5KWHUL7BC.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Accessibility"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CFNetwork.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CFNetwork-2E0KHMR6276VPV0GDFUGIQDEW.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CFNetwork"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreAudio.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreAudio-56P13336L6OH17ODW9TZGUV9E.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreAudio"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreAudioTypes.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreAudioTypes-12CDKPQUOGEMZZ2AJCE6XQ529.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreAudioTypes"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreData.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreData-74HZS2SKVEBHC6TEJXLR62KG7.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreData"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreFoundation.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreFoundation-5RE0M8JC3601OFQP4P3053ZRC.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreFoundation"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreGraphics.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreGraphics-3IW6M5JEMX602QUJWVK8LEYXB.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreGraphics"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreImage.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreImage-OOHIE1ERRU2NVQUP8UXHWKQA.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreImage"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreLocation.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreLocation-ZO29P9FCXK4W5F98MDET7NB2.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreLocation"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreMedia.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreMedia-78XRGIINO5M5WG59ZH3QCMXFB.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreMedia"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreMotion.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreMotion-DMOGKHRVTWOKAZ2TO44E30KDD.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreMotion"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreText.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreText-C2F0RN4RVCBSX7BTNC81URWQ0.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreText"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreTransferable.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreTransferable-51M2M9CDAU4703CTINTJKH747.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreTransferable"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/CoreVideo.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/CoreVideo-4YSXL12IUWZGLVI1LJYKSXPU3.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "CoreVideo"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/Darwin.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Darwin-8DV65OEI3JM59MQF29WHPWLK3.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Darwin"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/DataDetection.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/DataDetection-D19H1BAZF0CQYL6PA507U7Y5Q.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "DataDetection"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/DeveloperToolsSupport.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/DeveloperToolsSupport-CCGVCEBDEDITZF42RWA63U5JV.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "DeveloperToolsSupport"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/dispatch.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Dispatch-DZJYYC0CSOVD7MFYDDWPW8WQY.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Dispatch"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/FileProvider.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/FileProvider-2UDLC1CSOFDT35HP5PYPG9ARC.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "FileProvider"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/Foundation.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Foundation-1D7KVMRBCJKD6LCJJ67S6UVST.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Foundation"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/IOSurface.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/IOSurface-5VL86K9ZONJCTZAO461AFIHCK.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "IOSurface"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/ImageIO.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/ImageIO-Z1IBTI7GDTRMBMPXZMO3YWTH.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "ImageIO"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/DarwinBasic.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/MachO-15EN67U23D4EESB1VKDPVE33S.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "MachO"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/Metal.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Metal-7389IDLR1WWM0VC5UE20H77MD.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Metal"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/Network.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Network-3WA18CXH292O25IRKUN2C4S5H.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Network"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/OSLog.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/OSLog-3WW6D66TQPZRYETGCM7NIMM8N.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "OSLog"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/ObjectiveC.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/ObjectiveC-98DQBRYNI2UH06F1XSBGVO64V.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "ObjectiveC"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/OpenGLES.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/OpenGLES-9UZ1YU9GY471RFHOUQ34BD9LE.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "OpenGLES"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/QuartzCore.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/QuartzCore-AOXKPYAE3FXFORFYP67J778UJ.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "QuartzCore"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/Security.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Security-3SXENGBZ77LBOI97VHGKKVGYN.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Security"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/Spatial\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Spatial-5ROG2XCEYUU4QJHFPMSTXY36W.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Spatial"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/lib\/swift\/shims\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/SwiftShims-CXKZPPOWYJCVGD26CCG72XQIQ.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "SwiftShims"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/SwiftUI.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/SwiftUI-4LYNJIE0RK96ON23OIGRUII64.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "SwiftUI"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/SwiftUICore.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/SwiftUICore-3SNY4B9GZQKA3JNPQFH52MUZR.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "SwiftUICore"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/Symbols.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/Symbols-C2I6CDYMF30KJZB9UTE0ZRK9I.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "Symbols"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/UIKit.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/UIKit-9Z26OKMJDC7O9M66IVU52RCBX.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "UIKit"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/SubFrameworks\/UIUtilities.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/UIUtilities-CP0M5AKGS9HZA81U45SGLA1KO.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "UIUtilities"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/UniformTypeIdentifiers.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/UniformTypeIdentifiers-C1Y1AKOGVTQ33QQVTXSDTOQ99.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "UniformTypeIdentifiers"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/UserNotifications.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/UserNotifications-B9YI16HRZBBFX1RRI3YCEVRVA.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "UserNotifications"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/xpc.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/XPC-F1TD6Y9RWB82QMS0EGXP50MQV.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "XPC"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/DarwinFoundation1.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_AvailabilityInternal-1XI347HTUWFVL8Y5WKIJFBM0F.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_AvailabilityInternal"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_float-BV7WT3TJJVF5NZCR38U0I5G5I.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_float"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_intrinsics-7T5PG53RA83Q1FOYP2UZRSZH6.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_intrinsics"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_inttypes-816MIVJ9HRAT6IFWL87G8071W.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_inttypes"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_limits-4GUT4YDXK10OD0B6EIIO7TQJP.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_limits"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_stdarg-7XI5BHL2KCJDNE6ERNV4HU6OD.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_stdarg"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_stdatomic-4SPR5Z11AYA4U9TC3P2LK0MT2.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_stdatomic"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_stdbool-C6I85BAHWFIY8NQM280YHAPCN.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_stdbool"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_stddef-UUJFUODPGK817QEHC3ZA1XBA.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_stddef"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_stdint-7EVR20I9QBE12HIH6BYEQIWYR.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_stdint"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_Builtin_tgmath-7MRGREVOYO64P0P15A111PHA6.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_Builtin_tgmath"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/DarwinFoundation1.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_DarwinFoundation1-D8X1629CX5IN8KJDZ066N4C01.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_DarwinFoundation1"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/DarwinFoundation2.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_DarwinFoundation2-BZ9BI3TCAHK64CV60TACGZTT7.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_DarwinFoundation2"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/DarwinFoundation3.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_DarwinFoundation3-6NMTIHU0DALG99P6H3O38WHH2.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_DarwinFoundation3"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/System\/Library\/Frameworks\/_LocationEssentials.framework\/Modules\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_LocationEssentials-1T1AYLF0SKGDWG0XZ6IU83OVB.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_LocationEssentials"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/lib\/swift\/shims\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/_SwiftConcurrencyShims-12YJT1RXXU1ZG201QKF33049I.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "_SwiftConcurrencyShims"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/dnssd.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/dnssd-2E9VJJ5EZ5I00FLM8NCIVGMC7.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "dnssd"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/os.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/os-689FXPLMOGMKFP1BS8O9VJYDG.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "os"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/os.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/os_object-3NH21YAABWCKPZL9TUVNZHXXH.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "os_object"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/os.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/os_workgroup-7W69TH5GYFEKO6UZ3ZOIPHBJW.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "os_workgroup"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/ptrauth-OD4WHEGF5D0EL54MDD7JRE6.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "ptrauth"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Toolchains\/XcodeDefault.xctoolchain\/usr\/lib\/clang\/21\/include\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/ptrcheck-12OQSFMEQEMBFCLE6EX64AU88.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "ptrcheck"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/simd\/module.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/simd-123BWN9SPLPQREHCVU2CT66K6.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "simd"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/c_standard_library.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/string_h-1FJ8HZCRYZEVKNLTNMNYKBGTF.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "string_h"
+  },
+  {
+    "clangModuleMapPath" : "\/home\/daniisaahir\/.swiftpm\/swift-sdks\/darwin.artifactbundle\/Developer\/Platforms\/iPhoneOS.platform\/Developer\/SDKs\/iPhoneOS.sdk\/usr\/include\/DarwinFoundation2.modulemap",
+    "clangModulePath" : "\/home\/daniisaahir\/RustDoS\/ios\/.build\/out\/SDKExplicitPrecompiledModules\/sys_types-DZWMOWOTYW8E3BN95YALU2Q0L.pcm",
+    "isBridgingHeaderDependency" : false,
+    "isFramework" : false,
+    "moduleName" : "sys_types"
+  }
+]

@@ -67,17 +67,7 @@ Then wire it up in `src/attack.rs`: `workers()`, `raw_rate()`, and either `raw_w
 
 Platform is Alpine/musl/aarch64; `gcc` and `musl-dev` are required for linking.
 
-## iOS app (`ios/`)
+## iOS app
 
-SwiftUI port, built with xtool (`xtool dev build -c release --ipa`). Same
-vector catalogue minus L1/L2 (no AF_PACKET on iOS). Raw vectors use
-`SOCK_RAW` + `IP_HDRINCL`; Darwin wants `ip_len`/`ip_off` in host byte order
-and the kernel zeroes `ip_sum` itself.
-
-`xtool dev build` is the only compile gate; there is no simulator on Linux.
-Keep the app native SwiftUI — no terminal lookalike.
-
-CI (`.github/workflows/ios.yml`) pins xtool 1.22.2 + Swift 6.4.1 and installs
-the prebuilt SDK from the `ios-sdk` release. Bump both together and rebuild
-that asset (`xtool sdk build Xcode.xip <dir>`) when moving versions, or the
-slim-SDK version check fails.
+Separate repo: [dan1165/rustdos-ios](https://github.com/dan1165/rustdos-ios).
+SwiftUI, built with xtool, unsigned IPA published as a release on push.

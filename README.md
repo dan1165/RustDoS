@@ -177,40 +177,9 @@ take more.
 
 ## iOS app
 
-`ios/` is a SwiftUI port of the same tool, built with
-[xtool](https://github.com/xtool-org/xtool). It is a native app, not a terminal
-emulator: target entry, a live port grid, per-layer vector toggles, live
-packet/throughput counters and a health pill.
-
-```sh
-cd ios
-xtool dev build -c release --ipa   # -> ios/xtool/RustDoS.ipa
-```
-
-`.github/workflows/ios.yml` builds an **unsigned** IPA on every push that
-touches `ios/` and uploads it as the `RustDoS-unsigned-ipa` artifact. Install it
-with AltStore/Sideloadly, or sign it with your own certificate.
-
-The workflow runs on Ubuntu with a pinned Swift/xtool pair and a prebuilt
-Darwin SDK from the `ios-sdk` release, so it needs no Xcode.xip and no Apple
-ID. Rebuild that asset with `xtool sdk build Xcode.xip <dir>` if the pinned
-xtool version moves.
-
-Differences from the desktop build:
-
-- **No L1/L2.** iOS has no `AF_PACKET`, so `eth-flood` and `arp-flood` are
-  gone. L3-L7 raw vectors use `SOCK_RAW` + `IP_HDRINCL`, which works in the app
-  sandbox without root.
-- **No JavaScript challenge solving.** The Boa engine has no iOS counterpart
-  here; Cloudflare/Anubis challenges are detected but not solved.
-- **Subdomains are opt-in.** crt.sh names are listed and verified, but the app
-  attacks the primary host unless you select them.
-- Origin discovery is listed, not auto-retargeted.
-
-Every screen has a log button. It records the target, resolved IPs, open ports,
-recon results, per-vector error rates with `errno` text, health transitions and
-the run summary, and writes the same lines to `Documents/rustdos.log`. Use
-Copy or Share to send it on.
+The native SwiftUI port lives in [dan1165/rustdos-ios](https://github.com/dan1165/rustdos-ios).
+Unsigned IPAs are attached to its releases. It has no L1/L2 vectors (iOS has no
+`AF_PACKET`) and does not solve JS challenges.
 
 ## Notes and limits
 

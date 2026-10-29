@@ -1,0 +1,4 @@
+module RustDoS {
+header "RustDoS-Swift.h"
+export *
+}

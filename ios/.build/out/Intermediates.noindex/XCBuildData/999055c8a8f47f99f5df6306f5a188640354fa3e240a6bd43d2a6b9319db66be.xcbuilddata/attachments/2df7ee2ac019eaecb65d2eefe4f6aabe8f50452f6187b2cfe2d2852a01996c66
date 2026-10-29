@@ -1,0 +1,129 @@
+{
+  "" : {
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary.dia",
+    "emit-module-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary-emit-module.d",
+    "emit-module-diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary-emit-module.dia",
+    "pch" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary-Bridging-header.pch",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary.swiftdeps"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/AppModel.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Engine.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Log.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Log~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/LogView.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/LogView~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Model.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Net.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Recon.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/RunView.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/RustDoSApp.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/SelectView.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/SetupViews.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews~partial.swiftmodule"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Theme.swift" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.dia",
+    "index-unit-output-path" : "/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.o",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.swiftdeps",
+    "swiftmodule" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Debug-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme~partial.swiftmodule"
+  }
+}

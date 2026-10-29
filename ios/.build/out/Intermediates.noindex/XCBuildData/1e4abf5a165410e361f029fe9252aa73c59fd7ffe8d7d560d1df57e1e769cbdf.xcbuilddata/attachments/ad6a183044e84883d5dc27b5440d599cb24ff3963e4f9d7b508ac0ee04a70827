@@ -1,0 +1,61 @@
+{
+  "" : {
+    "const-values" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary.swiftconstvalues",
+    "dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary.d",
+    "diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary.dia",
+    "emit-module-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary-emit-module.d",
+    "emit-module-diagnostics" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary-emit-module.dia",
+    "pch" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary-Bridging-header.pch",
+    "swift-dependencies" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoS-primary.swiftdeps"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/AppModel.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/AppModel.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Engine.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Engine.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Model.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Model.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Net.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Net.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Recon.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Recon.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/RunView.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RunView.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/RustDoSApp.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/RustDoSApp.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/SelectView.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/SelectView.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/SetupViews.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/SetupViews.o"
+  },
+  "/home/daniisaahir/RustDoS/ios/Sources/RustDoS/Theme.swift" : {
+    "index-unit-output-path" : "/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.o",
+    "llvm-bc" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.bc",
+    "object" : "/home/daniisaahir/RustDoS/ios/.build/out/Intermediates.noindex/RustDoS.build/Release-iphoneos/RustDoS-t.build/Objects-normal/arm64/Theme.o"
+  }
+}
