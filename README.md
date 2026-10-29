@@ -207,6 +207,11 @@ Differences from the desktop build:
   attacks the primary host unless you select them.
 - Origin discovery is listed, not auto-retargeted.
 
+Every screen has a log button. It records the target, resolved IPs, open ports,
+recon results, per-vector error rates with `errno` text, health transitions and
+the run summary, and writes the same lines to `Documents/rustdos.log`. Use
+Copy or Share to send it on.
+
 ## Notes and limits
 
 - IPv4 only.

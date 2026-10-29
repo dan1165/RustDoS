@@ -29,6 +29,7 @@ struct RunView: View {
                 Text(model.target?.host ?? "").font(.title3.weight(.bold)).lineLimit(1)
                 Spacer()
                 Pill(text: model.running ? "ARMED" : "STOPPED", tint: model.running ? Theme.accent : .white.opacity(0.4), filled: model.running)
+                LogButton()
             }
             HStack(spacing: 6) {
                 Pill(text: "port \(model.port.map(String.init) ?? "-")")

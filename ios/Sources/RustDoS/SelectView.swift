@@ -61,6 +61,7 @@ struct SelectView: View {
                     Text(model.target?.host ?? "").font(.headline).lineLimit(1)
                     Spacer()
                     Pill(text: model.service.label, tint: Theme.accent)
+                    LogButton()
                 }
                 HStack(spacing: 6) {
                     Pill(text: "port \(model.port.map(String.init) ?? "auto")")

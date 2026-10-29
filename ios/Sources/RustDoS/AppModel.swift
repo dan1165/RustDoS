@@ -66,19 +66,24 @@ final class AppModel {
     func scan() async {
         error = nil
         let (host, typedPort, tls) = normalize(targetInput)
+        Log.info("scan", "input=\(targetInput) port=\(portInput) minutes=\(minutes)")
         guard !host.isEmpty else {
             error = "Enter a host, IP or URL first."
+            Log.warn("scan", "empty host")
             return
         }
         if !portInput.isEmpty, UInt16(portInput) == nil {
             error = "Port must be 1-65535."
+            Log.warn("scan", "bad port \(portInput)")
             return
         }
         let ips = Recon.resolve(host)
         guard !ips.isEmpty else {
             error = "\(host) does not resolve to IPv4."
+            Log.error("scan", "\(host) did not resolve")
             return
         }
+        Log.info("scan", "\(host) -> \(ips.joined(separator: ","))")
 
         let port = typedPort ?? (UInt16(portInput) ?? nil)
         target = Target(host: host, port: port, ips: ips, service: .unknown, tls: tls || port == 443 || port == 8443)
@@ -96,6 +101,7 @@ final class AppModel {
             service = banner.map { classify(port: port, banner: $0) } ?? (port == 53 ? .dns : .unknown)
             openPorts = banner == nil ? [] : [port]
             scanned = 1
+            Log.info("scan", "port \(port): \(banner == nil ? "closed/filtered" : "open, \(service.rawValue)")")
         } else {
             let token = Recon.Token()
             scanToken = token
@@ -103,12 +109,18 @@ final class AppModel {
             _ = await Recon.scanAll(
                 ip: ip,
                 token: token,
-                onFound: { [weak self] p in Task { @MainActor in self?.openPorts.append(p) } },
+                onFound: { [weak self] p in
+                    Task { @MainActor in
+                        self?.openPorts.append(p)
+                        Log.info("scan", "open port \(p) (\(classify(port: p).rawValue))")
+                    }
+                },
                 progress: { [weak self] n in Task { @MainActor in self?.scanned = n } }
             )
             let (svc, best) = bestService(openPorts)
             service = svc
             if let best { target?.port = best }
+            Log.info("scan", "sweep done: \(openPorts.count) open, service=\(svc.rawValue) port=\(best.map(String.init) ?? "-")")
         }
 
         scanToken = nil
@@ -123,6 +135,7 @@ final class AppModel {
     }
 
     func cancelScan() {
+        Log.info("scan", "cancelled by user")
         scanToken?.cancel()
         phase = .setup
     }
@@ -135,16 +148,21 @@ final class AppModel {
         } else {
             let headers = await Recon.httpHeaders(host: target.host, tls: target.tls)
             cdn = Recon.cdn(byHeaders: headers)
+            if headers.isEmpty { Log.warn("recon", "no HTTP headers from \(target.host)") }
         }
+        if let cdn { Log.warn("recon", "\(target.host) sits behind \(cdn)") }
         let names = await Recon.crtSh(target.host)
+        if names.isEmpty { Log.warn("recon", "crt.sh returned nothing for \(target.host)") }
         let verified = await Task.detached { Recon.verify(names) }.value
         subdomains = verified
+        Log.info("recon", "\(names.count) crt.sh names, \(verified.count) resolve")
         if let port = target.port {
             origins = await Task.detached {
                 Recon.originCandidates(target.host)
                     .filter { Recon.servesHost(ip: $0.1, port: port, host: target.host) }
                     .map(\.0)
             }.value
+            Log.info("recon", "origins: \(origins.isEmpty ? "none" : origins.joined(separator: ","))")
         }
     }
 
@@ -162,6 +180,7 @@ final class AppModel {
             let ips = Recon.resolve(name)
             if !ips.isEmpty { targets.append(Target(host: name, port: port, ips: ips, service: service, tls: target.tls)) }
         }
+        Log.info("attack", "start port=\(port) targets=\(targets.map(\.host).joined(separator: ",")) vectors=\(selected.sorted { $0.order < $1.order }.map(\.name).joined(separator: ",")) minutes=\(minutes)")
         let state = Engine.start(targets: targets, vectors: Array(selected), port: port)
         self.state = state
         snapshot = Snapshot()
@@ -178,6 +197,7 @@ final class AppModel {
     }
 
     func stop() {
+        Log.info("attack", "stop after \(Int(elapsed))s, \(snapshot.totalPackets) packets, \(snapshot.errors) errors")
         state?.stop()
         ticker?.cancel()
         prober?.cancel()
@@ -221,6 +241,13 @@ final class AppModel {
                 }
                 last = now
                 lastTime = Date()
+                for (v, count, code) in state.drainErrors() {
+                    Log.error("attack", "\(v.name): \(count) failures, last errno \(errnoText(code))")
+                }
+                if !state.rawAvailable, self.rawOK {
+                    self.rawOK = false
+                    Log.warn("attack", "raw sockets unavailable, L3/L4 raw vectors are dead")
+                }
                 if let deadline = self.deadline, Date() >= deadline {
                     self.stop()
                     return
@@ -242,12 +269,20 @@ final class AppModel {
                     fails = 0
                     let ms = Int(Date().timeIntervalSince(t0) * 1000)
                     self.latency = self.latency == 0 ? ms : (self.latency * 7 + ms) / 8
-                    self.health = self.latency > 800 ? .degraded : .up
+                    let next: Health = self.latency > 800 ? .degraded : .up
+                    if next != self.health {
+                        Log.info("health", "target \(next.rawValue), \(self.latency) ms")
+                        self.health = next
+                    }
                     let prev = self.successRate ?? 1
                     self.successRate = prev * 0.8 + 0.2
                 } else {
                     fails += 1
-                    self.health = fails >= 3 ? .down : .degraded
+                    let next: Health = fails >= 3 ? .down : .degraded
+                    if next != self.health {
+                        Log.warn("health", "probe failed (\(fails) in a row), target \(next.rawValue)")
+                        self.health = next
+                    }
                     self.successRate = (self.successRate ?? 1) * 0.8
                 }
             }

@@ -120,6 +120,7 @@ struct Header: View {
                 Text("L3–L7 stress tester").font(.caption).foregroundStyle(.white.opacity(0.45))
             }
             Spacer()
+            LogButton()
         }
     }
 }
