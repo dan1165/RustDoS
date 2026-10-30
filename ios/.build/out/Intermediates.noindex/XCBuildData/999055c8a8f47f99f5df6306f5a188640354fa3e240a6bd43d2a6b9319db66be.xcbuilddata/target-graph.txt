@@ -1,8 +1,0 @@
-Target dependency graph (4 targets)
-Target 'AllExcludingTests' in project 'Aggregate'
-➜ Explicit dependency on target 'RustDoS-App-product' in project 'RustDoS-Builder'
-Target 'RustDoS-App-product' in project 'RustDoS-Builder'
-➜ Explicit dependency on target 'RustDoS-product' in project 'RustDoS'
-Target 'RustDoS-product' in project 'RustDoS'
-➜ Explicit dependency on target 'RustDoS' in project 'RustDoS'
-Target 'RustDoS' in project 'RustDoS' (no dependencies)
